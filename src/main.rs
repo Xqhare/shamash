@@ -28,16 +28,19 @@ fn uptime_loop(mut con: Neith) {
     let interval_select = con.execute("select (value) from config where [id = 0]");
     let alt_interval_select = con.execute("select (value) from config where [id = 1]");
     if interval_select.is_ok() && alt_interval_select.is_ok() {
-        let interval = interval_select.unwrap().get_result().unwrap()[0].get_float().unwrap().to_string().parse::<u64>().unwrap();
-        let alt_interval = alt_interval_select.unwrap().get_result().unwrap()[0].get_float().unwrap().to_string().parse::<u64>().unwrap();
+        let interval = &interval_select.unwrap().get_result().unwrap()[0].get_list().unwrap()[0];
+        let temp = interval.get_float().unwrap().to_string().parse::<u64>().unwrap();
+        let alt_interval = alt_interval_select.unwrap().get_result().unwrap()[0].get_list().unwrap()[0].get_float().unwrap().to_string().parse::<u64>().unwrap();
         loop {
             if internet_upstate() {
+                println!("ONLINE");
                 write_upstate(true, con.clone());
                 // Now I schleeeep
-                thread::sleep(Duration::from_secs(interval))
+                thread::sleep(Duration::from_secs(temp))
             } else {
                 // INTERNET DOWN!!!
                 loop {
+                    println!("OFFLINE!");
                     write_upstate(false, con.clone());
                     thread::sleep(Duration::from_secs(alt_interval));
                     if internet_upstate() {
