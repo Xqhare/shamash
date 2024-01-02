@@ -58,7 +58,7 @@ fn uptime_loop(mut con: Neith) {
 fn write_upstate(up_bool: bool, mut con: Neith) {
     let id = con.execute("get len of uptime").unwrap().get_result().unwrap()[0].get_float().unwrap();
     let time = chrono::Utc::now().to_rfc3339().to_string();
-    let cmd = format!("new data uptime (id = {id},+ time = {time}, up_bool = {})", up_bool.to_string());
+    let cmd = format!("new data uptime (id = {id},+ time = {time},+ up_bool = {})", up_bool.to_string());
     let _up_data = con.execute(&cmd);
     let _ = con.clone().save();
 }
