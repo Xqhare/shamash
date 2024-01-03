@@ -34,14 +34,14 @@ fn uptime_loop(mut con: Neith) {
         loop {
             if internet_upstate() {
                 println!("ONLINE");
-                write_upstate(true, con.clone());
                 // Now I schleeeep
                 thread::sleep(Duration::from_secs(temp))
             } else {
                 // INTERNET DOWN!!!
                 loop {
                     println!("OFFLINE!");
-                    write_upstate(false, con.clone());
+                    let new_con = write_upstate(false, con.clone());
+                    con = new_con;
                     thread::sleep(Duration::from_secs(alt_interval));
                     if internet_upstate() {
                         break;
@@ -55,12 +55,13 @@ fn uptime_loop(mut con: Neith) {
         unimplemented!()
     }
 }
-fn write_upstate(up_bool: bool, mut con: Neith) {
+fn write_upstate(up_bool: bool, mut con: Neith) -> Neith {
     let id = con.execute("get len of uptime").unwrap().get_result().unwrap()[0].get_float().unwrap();
     let time = chrono::Utc::now().to_rfc3339().to_string();
     let cmd = format!("new data uptime (id = {id},+ time = {time},+ up_bool = {})", up_bool.to_string());
     let _up_data = con.execute(&cmd);
     let _ = con.clone().save();
+    con
 }
 fn internet_upstate() -> bool {
     if ping().is_ok() {
