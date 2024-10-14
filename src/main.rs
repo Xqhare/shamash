@@ -1,78 +1,63 @@
-use std::net::IpAddr;
-use std::str::FromStr;
-use std::thread;
-use std::time::Duration;
 
-use chrono;
-use neith::Neith;
+use std::{collections::VecDeque, error::Error, sync::{atomic::{AtomicBool, Ordering}, Arc}};
 
-fn main() {
-    // DB set up
-    let mut con = Neith::connect("shamash");
-    let _table = con.execute("new table uptime with (id true, time false, up_bool false)");
+use nabu::*;
+use signal_hook::{flag, consts::TERM_SIGNALS};
+use sysinfo::Networks;
 
-    if con.exists_table("config".to_string()) {
-        // Normal execution
-        uptime_loop(con)
-    } else {
-        // First execution
-        let _table = con.execute("new table config with (id true, value false)");
-        let _set_interval = con.execute("new data config (id = 0,+ value = 30)");
-        let _set_alt_interval = con.execute("new data config (id = 1,+ value = 5)");
-        let _ = con.clone().save();
-        // State is now set, normal execution
-        uptime_loop(con)
+
+const SLEEP_TIME: u64 = 500;
+const STORAGE_DIR: &str = "./shamash-logs";
+const MEASUREMENT_INTERVAL: usize = 60;
+const NO_INTERNET_THRESHOLD: usize = 0;
+
+fn main() -> Result<(), Box<dyn Error>> {
+    // largely SIGTERM handling
+    let term_now = Arc::new(AtomicBool::new(false));
+    for signal in TERM_SIGNALS {
+        // in eris this code has run for months on end without any problems...
+        // definitely not production ready, but good enough for now
+        flag::register_conditional_shutdown(*signal, 1, Arc::clone(&term_now)).expect("Failed to set conditional shutdown flag");
+        // Order of the two is important
+        flag::register(*signal, Arc::clone(&term_now)).expect("Failed to set shutdown flag");
     }
-}
-fn uptime_loop(mut con: Neith) {
-    let interval_select = con.execute("select (value) from config where [id = 0]");
-    let alt_interval_select = con.execute("select (value) from config where [id = 1]");
-    if interval_select.is_ok() && alt_interval_select.is_ok() {
-        let interval = &interval_select.unwrap().get_result().unwrap()[0].get_list().unwrap()[0];
-        let temp = interval.get_float().unwrap().to_string().parse::<u64>().unwrap();
-        let alt_interval = alt_interval_select.unwrap().get_result().unwrap()[0].get_list().unwrap()[0].get_float().unwrap().to_string().parse::<u64>().unwrap();
-        loop {
-            if internet_upstate() {
-                println!("ONLINE");
-                // Now I schleeeep
-                thread::sleep(Duration::from_secs(temp))
-            } else {
-                // INTERNET DOWN!!!
-                loop {
-                    println!("OFFLINE!");
-                    let new_con = write_upstate(false, con.clone());
-                    con = new_con;
-                    thread::sleep(Duration::from_secs(alt_interval));
-                    if internet_upstate() {
-                        break;
-                    }
-                }
+
+    let mut last_minute_incoming: VecDeque<usize> = VecDeque::new();
+    // Main loop
+    while !term_now.load(Ordering::Relaxed) {
+        // do stuff, fuck bitches
+
+        // 1. update incoming
+        let networks = Networks::new_with_refreshed_list();
+        for network in networks.iter() {
+            let usage: usize = network.1.packets_received() as usize;
+            if last_minute_incoming.len() == MEASUREMENT_INTERVAL {
+                last_minute_incoming.pop_front();
             }
+            last_minute_incoming.push_back(usage);
+        }
+
+        // 2. calculate if no internet
+        let mut no_internet = false;
+        if last_minute_incoming.len() != MEASUREMENT_INTERVAL {
+            continue;
+        } else {
+            if last_minute_incoming.iter().sum::<usize>() == NO_INTERNET_THRESHOLD {
+                no_internet = true;
+            }
+        }
+        
+        // 3. if no internet, call new function for smaller interval check for reconnection
+        if no_internet {
             
         }
-    } else {
-        // Do error handling!
-        unimplemented!()
+
+        // sleep if no shut down is requested
+        if !term_now.load(Ordering::Relaxed) {
+            std::thread::sleep(std::time::Duration::from_millis(SLEEP_TIME));
+        }
     }
+
+    Ok(())
 }
-fn write_upstate(up_bool: bool, mut con: Neith) -> Neith {
-    let id = con.execute("get len of uptime").unwrap().get_result().unwrap()[0].get_float().unwrap();
-    let time = chrono::Utc::now().to_rfc3339().to_string();
-    let cmd = format!("new data uptime (id = {id},+ time = {time},+ up_bool = {})", up_bool.to_string());
-    let _up_data = con.execute(&cmd);
-    let _ = con.clone().save();
-    con
-}
-fn internet_upstate() -> bool {
-    if ping().is_ok() {
-        true
-    } else {
-        false
-    }
-}
-fn ping() -> Result<(), ping::Error> {
-    let dur = Some(Duration::from_secs(2));
-    // This needs sudo to work!!! so cargo run won't!
-    let addr = IpAddr::from_str("209.85.233.101").unwrap();
-    ping::ping(addr, dur, None, None, None, None)
-}
+
