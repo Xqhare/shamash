@@ -13,6 +13,12 @@ No data leaves your machine, and only the date, time and duration of a connectiv
 
 - Keep your ISP honest: By tracking your Internet uptime, packet loss, and latency, you can identify and document any performance issues that may be caused by your ISP. This information can be used to hold your ISP accountable and to negotiate better service.
 
+## What data does Shamash log?
+
+- Start and end date of a connection drop.
+- Start and end time of a connection drop.
+- Duration of a connection drop.
+
 ## Installation:
 
 WIP
