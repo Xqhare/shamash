@@ -9,3 +9,4 @@ edition = "2021"
 nabu = { git = "https://github.com/Xqhare/nabu" }
 signal-hook = "0.3.17"
 sysinfo = "0.32.0"
+time = "0.3.36"
