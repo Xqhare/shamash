@@ -1,14 +1,19 @@
 
 use std::{collections::VecDeque, error::Error, sync::{atomic::{AtomicBool, Ordering}, Arc}};
 
-use nabu::*;
+use no_internet::no_internet;
 use signal_hook::{flag, consts::TERM_SIGNALS};
 use sysinfo::Networks;
 
+mod no_internet;
 
-const SLEEP_TIME: u64 = 500;
+/// 1000 == 1 second of sleep / wait
+const WAIT_TIME: u64 = 1_000;
+/// Storage directory
 const STORAGE_DIR: &str = "./shamash-logs";
+/// Measurement interval in seconds
 const MEASUREMENT_INTERVAL: usize = 60;
+/// No internet threshold in packets over the measurement interval
 const NO_INTERNET_THRESHOLD: usize = 0;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -23,6 +28,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let mut last_minute_incoming: VecDeque<usize> = VecDeque::new();
+    // used to stop spawning new no_internet threads if no internet is detected, until reconnected
+    let internet_restored = Arc::new(AtomicBool::new(true));
     // Main loop
     while !term_now.load(Ordering::Relaxed) {
         // do stuff, fuck bitches
@@ -38,23 +45,28 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // 2. calculate if no internet
-        let mut no_internet = false;
+        let mut no_internet_detected = false;
         if last_minute_incoming.len() != MEASUREMENT_INTERVAL {
             continue;
         } else {
             if last_minute_incoming.iter().sum::<usize>() == NO_INTERNET_THRESHOLD {
-                no_internet = true;
+                no_internet_detected = true;
             }
         }
+
         
         // 3. if no internet, call new function for smaller interval check for reconnection
-        if no_internet {
-            
+        if no_internet_detected && !internet_restored.load(Ordering::Relaxed) {
+            let term_clone = term_now.clone();
+            let internet_restored_clone = internet_restored.clone();
+            std::thread::spawn(move || {
+                no_internet(term_clone, internet_restored_clone);
+            });
         }
 
         // sleep if no shut down is requested
         if !term_now.load(Ordering::Relaxed) {
-            std::thread::sleep(std::time::Duration::from_millis(SLEEP_TIME));
+            std::thread::sleep(std::time::Duration::from_millis(WAIT_TIME));
         }
     }
 
