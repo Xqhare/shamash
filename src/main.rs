@@ -9,12 +9,17 @@ mod no_internet;
 
 /// 1000 == 1 second of sleep / wait
 const WAIT_TIME: u64 = 1_000;
+/// 100 == 0.1 second of sleep / wait
+/// used for no internet check
+const SHORT_WAIT_TIME: u64 = 250;
 /// Storage directory
 const STORAGE_DIR: &str = "./shamash-logs";
 /// Measurement interval in seconds
 const MEASUREMENT_INTERVAL: usize = 60;
 /// No internet threshold in packets over the measurement interval
 const NO_INTERNET_THRESHOLD: usize = 0;
+/// Internet restored threshold in packets over the measurement interval
+const INTERNET_RESTORED_THRESHOLD: usize = 10;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // largely SIGTERM handling
@@ -27,9 +32,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         flag::register(*signal, Arc::clone(&term_now)).expect("Failed to set shutdown flag");
     }
 
-    let mut last_minute_incoming: VecDeque<usize> = VecDeque::new();
+    let mut last_interval_incoming: VecDeque<usize> = VecDeque::new();
     // used to stop spawning new no_internet threads if no internet is detected, until reconnected
     let internet_restored = Arc::new(AtomicBool::new(true));
+    let internet_thread_spawned = Arc::new(AtomicBool::new(false));
     // Main loop
     while !term_now.load(Ordering::Relaxed) {
         // do stuff, fuck bitches
@@ -38,25 +44,26 @@ fn main() -> Result<(), Box<dyn Error>> {
         let networks = Networks::new_with_refreshed_list();
         for network in networks.iter() {
             let usage: usize = network.1.packets_received() as usize;
-            if last_minute_incoming.len() == MEASUREMENT_INTERVAL {
-                last_minute_incoming.pop_front();
+            if last_interval_incoming.len() == MEASUREMENT_INTERVAL {
+                last_interval_incoming.pop_front();
             }
-            last_minute_incoming.push_back(usage);
+            last_interval_incoming.push_back(usage);
         }
 
         // 2. calculate if no internet
         let mut no_internet_detected = false;
-        if last_minute_incoming.len() != MEASUREMENT_INTERVAL {
+        if last_interval_incoming.len() != MEASUREMENT_INTERVAL {
             continue;
         } else {
-            if last_minute_incoming.iter().sum::<usize>() == NO_INTERNET_THRESHOLD {
+            if last_interval_incoming.iter().sum::<usize>() <= NO_INTERNET_THRESHOLD {
                 no_internet_detected = true;
+                internet_restored.store(false, Ordering::Relaxed);
             }
         }
-
         
         // 3. if no internet, call new function for smaller interval check for reconnection
-        if no_internet_detected && !internet_restored.load(Ordering::Relaxed) {
+        if no_internet_detected && !internet_restored.load(Ordering::Relaxed) && !internet_thread_spawned.load(Ordering::Relaxed) {
+            internet_thread_spawned.store(true, Ordering::Relaxed);
             let term_clone = term_now.clone();
             let internet_restored_clone = internet_restored.clone();
             std::thread::spawn(move || {
