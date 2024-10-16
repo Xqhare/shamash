@@ -1,3 +1,4 @@
 /target
 *.vim
 /shamash-logs
+*.lock
