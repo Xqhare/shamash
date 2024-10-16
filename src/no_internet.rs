@@ -4,7 +4,7 @@ use std::{path::PathBuf, sync::{atomic::{AtomicBool, Ordering}, Arc, Mutex}};
 use nabu::{serde::write, XffValue::{self}};
 use time::OffsetDateTime;
 
-use crate::{network_adapter::NetworkTrafficHandler, INTERNET_RESTORED_THRESHOLD, SHORT_WAIT_TIME, STORAGE_DIR};
+use crate::{network_adapter::NetworkTrafficHandler, INTERNET_RESTORED_THRESHOLD, MEASUREMENT_INTERVAL, SHORT_WAIT_TIME, STORAGE_DIR};
 
 pub fn no_internet(term_now: Arc<AtomicBool>, adapter_name: String, main_network_handler: Arc<Mutex<NetworkTrafficHandler>>) {
 
@@ -27,7 +27,7 @@ pub fn no_internet(term_now: Arc<AtomicBool>, adapter_name: String, main_network
 
         // 2. calculate if no internet
         for (name, last_interval_incoming) in new_network_handler.load_map.iter() {
-            if name == &adapter_name {
+            if name == &adapter_name && last_interval_incoming.len() == MEASUREMENT_INTERVAL {
                 if last_interval_incoming.iter().sum::<u64>() >= INTERNET_RESTORED_THRESHOLD {
                     internet_detected = true;
                     break;
@@ -57,7 +57,7 @@ pub fn no_internet(term_now: Arc<AtomicBool>, adapter_name: String, main_network
     // create log
     let xff_value = XffValue::from(vec![("start-date", format!("{}", start_date)), ("start-time", format!("{}", start_time)), ("end-date", format!("{}", end_date)), ("end-time", format!("{}", end_time)), ("duration", format!("{}", duration_of_incident))]);
     let mut log_dir_path = PathBuf::from(STORAGE_DIR);
-    log_dir_path.extend(vec![format!("/{adapter_name}")]);
+    log_dir_path.extend(vec![format!("{adapter_name}")]);
     if !log_dir_path.exists() {
         std::fs::create_dir_all(&log_dir_path).expect("Failed to create log directory");
     }

@@ -61,6 +61,7 @@ impl NetworkTrafficHandler {
         let networks = Networks::new_with_refreshed_list();
         for network in networks.iter() {
             let name = network.0.to_string();
+            if name == "lo" { continue; }
             let now_received = network.1.total_received();
             let last_received = self.last_received_map.insert(name.clone(), now_received).expect("No value to update!");
             let load = now_received.saturating_sub(last_received);
