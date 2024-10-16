@@ -1,9 +1,8 @@
+use std::{error::Error, sync::{atomic::{AtomicBool, Ordering}, Arc, Mutex}, thread};
 
-use std::{collections::VecDeque, error::Error, sync::{atomic::{AtomicBool, Ordering}, Arc}};
-
+use network_adapter::NetworkTrafficHandler;
 use no_internet::no_internet;
 use signal_hook::{flag, consts::TERM_SIGNALS};
-use sysinfo::Networks;
 
 mod no_internet;
 mod network_adapter;
@@ -18,9 +17,9 @@ const STORAGE_DIR: &str = "./shamash-logs";
 /// Measurement interval in seconds
 const MEASUREMENT_INTERVAL: usize = 60;
 /// No internet threshold in packets over the measurement interval
-const NO_INTERNET_THRESHOLD: usize = 0;
+const NO_INTERNET_THRESHOLD: u64 = 0;
 /// Internet restored threshold in packets over the measurement interval
-const INTERNET_RESTORED_THRESHOLD: usize = 10;
+const INTERNET_RESTORED_THRESHOLD: u64 = 10;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // largely SIGTERM handling
@@ -33,52 +32,35 @@ fn main() -> Result<(), Box<dyn Error>> {
         flag::register(*signal, Arc::clone(&term_now)).expect("Failed to set shutdown flag");
     }
 
-    let mut last_interval_incoming: VecDeque<usize> = VecDeque::new();
-    // used to stop spawning new no_internet threads if no internet is detected, until reconnected
-    let internet_restored = Arc::new(AtomicBool::new(true));
-    let internet_thread_spawned = Arc::new(AtomicBool::new(false));
-    let mut last_total_incoming: u64 = 0;
-    let mut initial_loop = true;
+    let network_handler = Arc::new(Mutex::new(NetworkTrafficHandler::new(WAIT_TIME)));
     // Main loop
     while !term_now.load(Ordering::Relaxed) {
         // do stuff, fuck bitches
 
+        // 0. lock the network handler
+        let mut network_handler_locked = network_handler.try_lock().expect("Failed to lock network handler");
+        let tmp_network_bind = network_handler_locked.load_map.clone();
+
         // 1. update incoming
-        let networks = Networks::new_with_refreshed_list();
-        for network in networks.iter() {
-            println!("{:?}", network.0);
-            println!("{:?}", network.1.total_received());
-            if initial_loop {
-                initial_loop = false;
-                last_total_incoming = network.1.total_received();
-            } else {
-                /* let total_incoming = network.1.total_received();
-                let usage = total_incoming - last_total_incoming;
-                last_total_incoming = total_incoming; */
-                if last_interval_incoming.len() == MEASUREMENT_INTERVAL {
-                    last_interval_incoming.pop_front();
-                }
-                //last_interval_incoming.push_back(usage as usize);
-                last_interval_incoming.push_back(network.1.total_received() as usize);
-            }
-        }
+        network_handler_locked.update();
 
         // 2. calculate if no internet
-        if last_interval_incoming.len() == MEASUREMENT_INTERVAL {
-            if last_interval_incoming.iter().sum::<usize>() <= NO_INTERNET_THRESHOLD {
-                println!("No internet detected");
-                println!("{:?}", last_interval_incoming);
-                internet_restored.store(false, Ordering::Relaxed);
+        for (name, last_interval_incoming) in tmp_network_bind.into_iter() {
+            // A full measurement interval needs to be done
+            // -> the first few seconds could just be no network activity
+            // the full interval should capture some activity be it simple update requests or smth
+            if last_interval_incoming.len() == MEASUREMENT_INTERVAL {
+                if last_interval_incoming.iter().sum::<u64>() <= NO_INTERNET_THRESHOLD && !network_handler_locked.thread_spawned_map.get(&name).expect("No value to update!"){
+                    let internet_restored = network_handler_locked.internet_restored_map.get_mut(&name).expect("No value to update!");
+                    *internet_restored = false;
+                    let thread_spawned = network_handler_locked.thread_spawned_map.get_mut(&name).expect("No value to update!");
+                    *thread_spawned = true;
 
-                // 3. if no internet, call new function for smaller interval check for reconnection
-                if !internet_restored.load(Ordering::Relaxed) && !internet_thread_spawned.load(Ordering::Relaxed) {
-                    internet_thread_spawned.store(true, Ordering::Relaxed);
-                    let term_clone = term_now.clone();
-                    let internet_restored_clone = internet_restored.clone();
-                    let internet_thread_spawned_clone = internet_thread_spawned.clone();
                     println!("Thread spawned");
-                    std::thread::spawn(move || {
-                        no_internet(term_clone, internet_restored_clone, internet_thread_spawned_clone);
+                    let term_clone = term_now.clone();
+                    let network_handler_clone = network_handler.clone();
+                    thread::spawn(move || {
+                        no_internet(term_clone, name.to_string(), network_handler_clone);
                     });
                 }
             }
@@ -86,7 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // sleep if no shut down is requested
         if !term_now.load(Ordering::Relaxed) {
-            std::thread::sleep(std::time::Duration::from_millis(WAIT_TIME));
+            thread::sleep(std::time::Duration::from_millis(WAIT_TIME));
         }
     }
 
