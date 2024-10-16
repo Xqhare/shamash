@@ -36,6 +36,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     // used to stop spawning new no_internet threads if no internet is detected, until reconnected
     let internet_restored = Arc::new(AtomicBool::new(true));
     let internet_thread_spawned = Arc::new(AtomicBool::new(false));
+    let mut last_total_incoming: u64 = 0;
+    let mut initial_loop = true;
     // Main loop
     while !term_now.load(Ordering::Relaxed) {
         // do stuff, fuck bitches
@@ -43,32 +45,42 @@ fn main() -> Result<(), Box<dyn Error>> {
         // 1. update incoming
         let networks = Networks::new_with_refreshed_list();
         for network in networks.iter() {
-            let usage: usize = network.1.packets_received() as usize;
-            if last_interval_incoming.len() == MEASUREMENT_INTERVAL {
-                last_interval_incoming.pop_front();
+            println!("{:?}", network.0);
+            println!("{:?}", network.1.total_received());
+            if initial_loop {
+                initial_loop = false;
+                last_total_incoming = network.1.total_received();
+            } else {
+                /* let total_incoming = network.1.total_received();
+                let usage = total_incoming - last_total_incoming;
+                last_total_incoming = total_incoming; */
+                if last_interval_incoming.len() == MEASUREMENT_INTERVAL {
+                    last_interval_incoming.pop_front();
+                }
+                //last_interval_incoming.push_back(usage as usize);
+                last_interval_incoming.push_back(network.1.total_received() as usize);
             }
-            last_interval_incoming.push_back(usage);
         }
 
         // 2. calculate if no internet
-        let mut no_internet_detected = false;
-        if last_interval_incoming.len() != MEASUREMENT_INTERVAL {
-            continue;
-        } else {
+        if last_interval_incoming.len() == MEASUREMENT_INTERVAL {
             if last_interval_incoming.iter().sum::<usize>() <= NO_INTERNET_THRESHOLD {
-                no_internet_detected = true;
+                println!("No internet detected");
+                println!("{:?}", last_interval_incoming);
                 internet_restored.store(false, Ordering::Relaxed);
+
+                // 3. if no internet, call new function for smaller interval check for reconnection
+                if !internet_restored.load(Ordering::Relaxed) && !internet_thread_spawned.load(Ordering::Relaxed) {
+                    internet_thread_spawned.store(true, Ordering::Relaxed);
+                    let term_clone = term_now.clone();
+                    let internet_restored_clone = internet_restored.clone();
+                    let internet_thread_spawned_clone = internet_thread_spawned.clone();
+                    println!("Thread spawned");
+                    std::thread::spawn(move || {
+                        no_internet(term_clone, internet_restored_clone, internet_thread_spawned_clone);
+                    });
+                }
             }
-        }
-        
-        // 3. if no internet, call new function for smaller interval check for reconnection
-        if no_internet_detected && !internet_restored.load(Ordering::Relaxed) && !internet_thread_spawned.load(Ordering::Relaxed) {
-            internet_thread_spawned.store(true, Ordering::Relaxed);
-            let term_clone = term_now.clone();
-            let internet_restored_clone = internet_restored.clone();
-            std::thread::spawn(move || {
-                no_internet(term_clone, internet_restored_clone);
-            });
         }
 
         // sleep if no shut down is requested
