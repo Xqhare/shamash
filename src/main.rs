@@ -6,6 +6,7 @@ use signal_hook::{flag, consts::TERM_SIGNALS};
 use sysinfo::Networks;
 
 mod no_internet;
+mod network_adapter;
 
 /// 1000 == 1 second of sleep / wait
 const WAIT_TIME: u64 = 1_000;
