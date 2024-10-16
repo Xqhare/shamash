@@ -27,6 +27,16 @@ WIP
 
 WIP
 
+## How Shamash deals with several networks:
+
+Every network adapter except for the loop-back device ("lo") is monitored.
+All adapters are treated as inactive until bytes are received from one of them.
+
+Only the active adapter is set to active and monitored for a connection drop.
+All other adapters continue to be monitored for a possible activation.
+
+Every adapter logs into its own local directory, every file is one connection drop and named after the start time.
+
 ## Naming:
 
 The name "Shamash" is particularly fitting for this program given its role in monitoring and evaluating Internet connection performance. In ancient Mesopotamian mythology, Shamash was the god of justice, law, and truth. He was tasked with upholding righteousness and ensuring that all beings were treated fairly. This association with fairness and accountability aligns well with the purpose of Shamash, which is to provide users with comprehensive insights into their Internet connection and hold ISPs accountable for their service quality. Just as Shamash served as a divine arbiter, Shamash the program acts as an impartial observer of network performance, shedding light on any inconsistencies or potential issues. By providing users with accurate and detailed data, Shamash empowers them to make informed decisions about their Internet service and hold their ISPs to a higher standard of performance.
