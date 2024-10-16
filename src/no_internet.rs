@@ -7,7 +7,7 @@ use time::OffsetDateTime;
 
 use crate::{MEASUREMENT_INTERVAL, STORAGE_DIR, SHORT_WAIT_TIME, INTERNET_RESTORED_THRESHOLD};
 
-pub fn no_internet(term_now: Arc<AtomicBool>, internet_restored: Arc<AtomicBool>) {
+pub fn no_internet(term_now: Arc<AtomicBool>, internet_restored: Arc<AtomicBool>, internet_thread_spawned: Arc<AtomicBool>) {
     // interval == (60 / SHORT_WAIT_TIME) * MEASUREMENT_INTERVAL
     // interval == (60 / 250) * 60
     // interval == 10 seconds
@@ -39,11 +39,12 @@ pub fn no_internet(term_now: Arc<AtomicBool>, internet_restored: Arc<AtomicBool>
         } else {
             if last_interval_incoming.iter().sum::<usize>() >= INTERNET_RESTORED_THRESHOLD {
                 internet_detected = true;
+                break;
             }
         }
 
         // 3. sleep if no internet is detected
-        if !term_now.load(Ordering::Relaxed) && !internet_detected {
+        if !term_now.load(Ordering::Relaxed) || !internet_detected {
             std::thread::sleep(std::time::Duration::from_millis(SHORT_WAIT_TIME));
         }
     }
@@ -71,4 +72,5 @@ pub fn no_internet(term_now: Arc<AtomicBool>, internet_restored: Arc<AtomicBool>
     println!("{:?}", write_log);
 
     internet_restored.store(true, Ordering::Relaxed);
+    internet_thread_spawned.store(false, Ordering::Relaxed);
 }
