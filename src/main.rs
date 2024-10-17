@@ -22,7 +22,7 @@ const NO_INTERNET_THRESHOLD: u64 = 0;
 const INTERNET_RESTORED_THRESHOLD: u64 = 10;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // largely SIGTERM handling
+    // SIGTERM handling
     let term_now = Arc::new(AtomicBool::new(false));
     for signal in TERM_SIGNALS {
         // in eris this code has run for months on end without any problems...
@@ -32,6 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         flag::register(*signal, Arc::clone(&term_now)).expect("Failed to set shutdown flag");
     }
 
+    // keeping track of stuff
     let mut network_handler = NetworkTrafficHandler::new(WAIT_TIME);
     let mut no_internet_monitored: Vec<String> = Vec::new();
     // Main loop
