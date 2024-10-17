@@ -7,7 +7,12 @@ No data leaves your machine, and only the date, time and duration of a connectiv
 
 - Logging: Shamash logs connection events, determining your uptime.
 - No special privileges needed: Shamash simply reads the network activity and logs any drops.
-- All data stays on your machine: Shamash logs all data to a local file.
+    - Only write privileges to the current directory required.
+- All data stays on your machine: Shamash logs all data to a local file. That's it.
+
+## Roadmap:
+
+- A way to read / display the logs
 
 ## Why use Shamash?
 
@@ -21,7 +26,7 @@ No data leaves your machine, and only the date, time and duration of a connectiv
 
 ## Installation:
 
-Shamash should be system agnostic, but I have not tested it anywhere but on Debian.
+Shamash should run on any UNIX system, it's only tested on Debian.
 
 1. Clone the repository.
 2. Build the project.
@@ -33,12 +38,14 @@ Shamash should be system agnostic, but I have not tested it anywhere but on Debi
 
 3. Move the binary to the desired location.
 4. Add the binary to your autostart script.
+5. Restart your system or start the program manually.
 
 Now Shamash is up and running, monitoring your Internet connection.
+Whenever the system boots up, it will automatically start Shamash in the background, as long as you have added it to your autostart script.
 
 ## Usage:
 
-After setting up the program, you can simplylet it run in the background.
+After setting up the program, you can simply let it run in the background.
 Shamash will create a directory `shamash-logs` in the same directory you place it in and store all of its data there.
 
 Inside the `shamash-logs` directory, you will find directories named after the network adapter that dropped the connection.
