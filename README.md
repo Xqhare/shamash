@@ -21,11 +21,30 @@ No data leaves your machine, and only the date, time and duration of a connectiv
 
 ## Installation:
 
-WIP
+Shamash should be system agnostic, but I have not tested it anywhere but on Debian.
+
+1. Clone the repository.
+2. Build the project.
+```sh
+    $ git clone https://github.com/Xqhare/shamash
+    $ cd shamash
+    $ cargo build -r
+```
+
+3. Move the binary to the desired location.
+4. Add the binary to your autostart script.
+
+Now Shamash is up and running, monitoring your Internet connection.
 
 ## Usage:
 
-WIP
+After setting up the program, you can simplylet it run in the background.
+Shamash will create a directory `shamash-logs` in the same directory you place it in and store all of its data there.
+
+Inside the `shamash-logs` directory, you will find directories named after the network adapter that dropped the connection.
+Each directory will contain files named after the start time of the connection drop.
+
+The log files are saved in [XFF](https://github.com/Xqhare/nabu).
 
 ## How Shamash deals with several networks:
 
