@@ -47,10 +47,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         for name in network_handler.active_adapters.clone() {
             if let Some(last_interval_incoming) = tmp_network_bind.get(&name) {
                 if last_interval_incoming.len() == MEASUREMENT_INTERVAL {
+                    #[cfg(debug_assertions)]
                     println!("Buffer full. Incoming bytes: {}", last_interval_incoming.iter().sum::<u64>());
                     if last_interval_incoming.iter().sum::<u64>() <= NO_INTERNET_THRESHOLD && !no_internet_monitored.contains(&name) {
                         no_internet_monitored.push(name.clone());
-                        no_internet(term_now.clone(), name, tmp_network_bind.clone());
+                        let internet_detected = no_internet(term_now.clone(), name.clone(), tmp_network_bind.clone());
+                        if internet_detected.is_ok() {
+                            no_internet_monitored.remove(no_internet_monitored.iter().position(|x| x == &name).unwrap());
+                        }
                     }
                 }
             }
