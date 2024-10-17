@@ -74,6 +74,7 @@ impl NetworkTrafficHandler {
             if load > 0 && !self.active_adapters.contains(&name) {
                 self.active_adapters.push(name.clone());
             }
+            #[cfg(debug_assertions)]
             println!("{name} -> {now_received} - {last_received} = {load}");
             if self.load_map.get(&name).expect("No value found!").len() == MEASUREMENT_INTERVAL {
                 let load_vec = self.load_map.get_mut(&name).expect("No value to update!");
