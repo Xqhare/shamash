@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 nabu = { git = "https://github.com/Xqhare/nabu" }
 signal-hook = "0.3.17"
-sysinfo = "0.32.0"
 horae = { git = "https://github.com/Xqhare/horae" }
 
 [profile.release]
