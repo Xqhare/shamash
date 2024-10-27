@@ -1,6 +1,4 @@
-use std::{collections::{BTreeMap, VecDeque}, thread, time::Duration};
-
-use sysinfo::Networks;
+use std::{collections::{BTreeMap, VecDeque}, fs::File, io::Read, path::Path, thread, time::Duration};
 
 use crate::{MEASUREMENT_INTERVAL, SHORT_WAIT_TIME};
 
@@ -19,28 +17,26 @@ pub struct NetworkTrafficHandler {
 impl NetworkTrafficHandler {
     /// Create new network traffic handler with a wait time in milliseconds
     pub fn new(wait_time: u64) -> Self {
-        let mut networks = Networks::new_with_refreshed_list();
 
         let mut last_received_map = BTreeMap::new();
 
-        for network in networks.iter() {
-            let name = network.0.to_string();
+        for network in get_network_load_from_procfs() {
+            let name = network.0;
             if name == "lo" { continue; }
-            let last_received = network.1.total_received();
+            let last_received = network.1;
             last_received_map.insert(name.clone(), last_received);
         }
 
         // wait for refresh to have new data
         thread::sleep(Duration::from_millis(wait_time));
-        networks.refresh();
 
         let mut load_map: BTreeMap<String, VecDeque<u64>> = BTreeMap::new();
         let mut active_adapters: Vec<String> = Vec::new();
 
-        for network in networks.iter() {
-            let name = network.0.to_string();
+        for network in get_network_load_from_procfs() {
+            let name = network.0;
             if name == "lo" { continue; }
-            let now_received = network.1.total_received();
+            let now_received = network.1;
             let load = now_received.saturating_sub(*last_received_map.get(&name).expect("No last value!"));
             if load > 0 {
                 active_adapters.push(name.clone());
@@ -64,11 +60,10 @@ impl NetworkTrafficHandler {
     }
 
     pub fn update(&mut self) {
-        let networks = Networks::new_with_refreshed_list();
-        for network in networks.iter() {
-            let name = network.0.to_string();
+        for network in get_network_load_from_procfs() {
+            let name = network.0;
             if name == "lo" { continue; }
-            let now_received = network.1.total_received();
+            let now_received = network.1;
             let last_received = self.last_received_map.insert(name.clone(), now_received).expect("No value to update!");
             let load = now_received.saturating_sub(last_received);
             if load > 0 && !self.active_adapters.contains(&name) {
@@ -88,3 +83,33 @@ impl NetworkTrafficHandler {
     }
 }
 
+fn get_network_load_from_procfs() -> Vec<(String, u64)> {
+    const PROCFS: &str = "/proc/net";
+    let mut out: Vec<(String, u64)> = Vec::new();
+    // read all channel bond interfaces (network adapter pools)
+    let all_dirs = Path::new(PROCFS).read_dir().expect("Failed to read procfs");
+    for dir in all_dirs {
+        let dir = dir.expect("Failed to read procfs");
+        if dir.path().is_dir() && dir.path().file_name().unwrap().to_str().unwrap().contains("dev") {
+            for file in dir.path().read_dir().expect("Failed to read procfs") {
+                let file = file.expect("Failed to read procfs");
+                let mut tmp_file = File::open(file.path()).expect("Failed to read procfs");
+                let mut buffer = String::new();
+                tmp_file.read_to_string(&mut buffer).expect("Failed to read procfs");
+                for line in buffer.lines() {
+                    if line.contains("Ip6InReceives") {
+                        if file.path().file_name().expect("Failed to read procfs").to_str().unwrap() != "lo" {
+                            out.push(
+                                (
+                                    file.path().file_name().expect("Failed to read procfs").to_str().unwrap().to_string(), 
+                                    line.split_whitespace().nth(1).expect("Failed to read procfs").parse().expect("Failed to read procfs")
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+    out
+}
