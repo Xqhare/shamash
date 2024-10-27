@@ -20,7 +20,7 @@ source = "git+https://github.com/Xqhare/nabu#b7ed27df5361d26454646654130b7eacfb7
 
 [[package]]
 name = "shamash"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "horae",
  "nabu",
