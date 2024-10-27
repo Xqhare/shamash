@@ -2,7 +2,7 @@
 use std::{collections::{BTreeMap, VecDeque}, path::PathBuf, sync::{atomic::{AtomicBool, Ordering}, Arc}};
 
 use nabu::{serde::write, XffValue::{self}};
-use time::OffsetDateTime;
+use horae::Utc;
 
 use crate::{network_adapter::NetworkTrafficHandler, INTERNET_RESTORED_THRESHOLD, MEASUREMENT_INTERVAL, SHORT_WAIT_TIME, STORAGE_DIR};
 
@@ -11,7 +11,7 @@ use crate::{network_adapter::NetworkTrafficHandler, INTERNET_RESTORED_THRESHOLD,
 pub fn no_internet(term_now: Arc<AtomicBool>, adapter_name: String, load_map: BTreeMap<String, VecDeque<u64>>) -> Result<(), Box<dyn std::error::Error>> {
 
     // logging data
-    let date_time_of_incident = OffsetDateTime::now_utc();
+    let date_time_of_incident = Utc::now();
     let start_date = date_time_of_incident.date();
     let start_time = date_time_of_incident.time();
     let time_of_incident = std::time::SystemTime::now();
@@ -43,7 +43,7 @@ pub fn no_internet(term_now: Arc<AtomicBool>, adapter_name: String, load_map: BT
     }
     // log data 2
     let duration_of_incident = time_of_incident.elapsed().unwrap().as_millis();
-    let date_time_end_of_incident = OffsetDateTime::now_utc();
+    let date_time_end_of_incident = Utc::now();
     let end_date = date_time_end_of_incident.date();
     let end_time = date_time_end_of_incident.time();
     
