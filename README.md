@@ -1,6 +1,7 @@
 # Shamash: Monitor your Internet connection and keep your ISP honest
 
-Shamash is a small and lightweight tool that monitors your Internet connection for any drops in connectivity, to keep your ISP honest about the quality of service they are providing.\
+Shamash is a small and lightweight tool that monitors your Internet connection for any drops in connectivity, to keep your ISP honest about the quality of service they are providing.
+
 No data leaves your machine, and only the date, time and duration of a connectivity drop are logged.
 
 ## Features:
