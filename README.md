@@ -2,7 +2,7 @@
 
 Shamash is a small and lightweight tool that monitors your Internet connection for any drops in connectivity, to keep your ISP honest about the quality of service they are providing.
 
-No data leaves your machine, and only the date, time and duration of a connectivity drop are logged.
+No data leaves your machine.
 
 ## Features:
 
@@ -10,10 +10,8 @@ No data leaves your machine, and only the date, time and duration of a connectiv
 - No special privileges needed: Shamash simply reads the network activity and logs any drops.
     - Only write privileges to the current directory required.
 - All data stays on your machine: Shamash logs all data to a local file. That's it.
-
-## Roadmap:
-
-- A way to read / display the logs
+- Detect local outages (router is down)
+- Detect remote outages (ISP is down)
 
 ## Why use Shamash?
 
@@ -21,9 +19,8 @@ No data leaves your machine, and only the date, time and duration of a connectiv
 
 ## What data does Shamash log?
 
-- Start and end date of a connection drop.
-- Start and end time of a connection drop.
-- Duration of a connection drop.
+- Start and end time & date of a connection drop.
+- Type of connection drop (local or remote).
 
 ## Installation:
 
@@ -49,28 +46,23 @@ Whenever the system boots up, it will automatically start Shamash in the backgro
 After setting up the program, you can simply let it run in the background.
 Shamash will create a directory `shamash-logs` in the same directory you place it in and store all of its data there.
 
-Inside the `shamash-logs` directory, you will find directories named after the network adapter that dropped the connection.
-Each directory will contain files named after the start time of the connection drop.
+The log files are saved as text inside the `shamash-logs` directory.
 
-The log files are saved in [XFF](https://github.com/Xqhare/nabu).
+## How Shamash works:
 
-## How Shamash deals with several networks:
+Shamash is a simple program that pings a remote server every second. If the ping fails, it starts an outage and begins logging.
+From now, Shamash will ping every third of a second until the connection is back up.
+It then saves the log and starts pinging every second again.
 
-Every network adapter except for the loop-back device ("lo") is monitored.
-All adapters are treated as inactive until bytes are received from one of them.
-
-Only the active adapter is set to active and monitored for a connection drop.
-All other adapters continue to be monitored for a possible activation.
-
-Every adapter logs into its own local directory, every file is one connection drop and named after the start time.
+It rotates through DNS targets and pings them in a round-robin manner.
+Namely: `1.1.1.1`, `1.0.0.1`, `8.8.4.4`, `8.8.8.8`, `9.9.9.9`, `94.140.14.14`, `94.140.15.15`, `149.112.112.112`, `208.67.222.222`, `208.67.220.220`
 
 ## Naming:
 
-The name "Shamash" is particularly fitting for this program given its role in monitoring and evaluating Internet connection performance. In ancient Mesopotamian mythology, Shamash was the god of justice, law, and truth. He was tasked with upholding righteousness and ensuring that all beings were treated fairly. This association with fairness and accountability aligns well with the purpose of Shamash, which is to provide users with comprehensive insights into their Internet connection and hold ISPs accountable for their service quality. Just as Shamash served as a divine arbiter, Shamash the program acts as an impartial observer of network performance, shedding light on any inconsistencies or potential issues. By providing users with accurate and detailed data, Shamash empowers them to make informed decisions about their Internet service and hold their ISPs to a higher standard of performance.
+In ancient Mesopotamian mythology, Shamash was the god of justice, law, and truth. He was tasked with upholding righteousness and ensuring that all beings were treated fairly.
 
 ## Acknowledgments
 Thanks to the open-source community for providing invaluable tools and libraries.
 Used in this project:
 - [signal-hook](https://crates.io/crates/signal-hook)
-- [sysinfo](https://crates.io/crates/sysinfo)
-- [nabu](https://github.com/Xqhare/nabu)
+- [horae](https://github.com/Xqhare/horae)
