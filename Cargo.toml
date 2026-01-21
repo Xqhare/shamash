@@ -6,7 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nabu = { git = "https://github.com/Xqhare/nabu" }
 signal-hook = "0.4.1"
 horae = { git = "https://github.com/Xqhare/horae" }
 
