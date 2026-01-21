@@ -149,6 +149,12 @@ fn main() {
             }
         }
     }
+
+    // ------ SHUT DOWN CODE --------
+    if logger.has_unsaved_log() {
+        let now = Utc::now();
+        logger.end_log(format!("Shamash shutting down at {}", now));
+    }
 }
 
 fn next_index(index: usize, len: usize) -> usize {
