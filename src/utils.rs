@@ -18,7 +18,7 @@ pub fn is_answering_ping(addr: &str, timeout_duration: Duration) -> bool {
         .arg("-c")
         .arg("1")
         .arg("-W")
-        .arg(timeout_duration.as_secs().to_string())
+        .arg(timeout_duration.as_secs_f32().to_string())
         .arg(addr)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
