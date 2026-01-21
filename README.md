@@ -28,6 +28,7 @@ Shamash should run on any UNIX system, it's only tested on Debian.
 
 1. Clone the repository.
 2. Build the project.
+
 ```sh
     $ git clone https://github.com/Xqhare/shamash
     $ cd shamash
