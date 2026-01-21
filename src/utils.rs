@@ -1,4 +1,7 @@
-use std::{process::{Command, Stdio}, time::Duration};
+use std::{
+    process::{Command, Stdio},
+    time::Duration,
+};
 
 /// Ping a host
 ///
@@ -27,7 +30,7 @@ pub fn is_answering_ping(addr: &str, timeout_duration: Duration) -> bool {
             // TODO: Log error - or ignore but remove debug print
             println!("Error: {}", e);
             false
-        },
+        }
     }
 }
 

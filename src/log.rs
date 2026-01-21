@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 use horae::Utc;
 
-
 pub struct Logger {
     logs: Vec<String>,
     log_dir_path: String,
@@ -10,7 +9,10 @@ pub struct Logger {
 
 impl Logger {
     pub fn new(log_dir_path: String) -> Self {
-        Self { logs: vec![], log_dir_path }
+        Self {
+            logs: vec![],
+            log_dir_path,
+        }
     }
 
     pub fn add_log_line(&mut self, log_line: String) {

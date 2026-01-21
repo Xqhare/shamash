@@ -1,4 +1,10 @@
-use std::{sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
+use std::{
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    thread,
+};
 
 use config::Config;
 use horae::Utc;
@@ -6,9 +12,9 @@ use log::Logger;
 use signal_hook::{consts::TERM_SIGNALS, flag};
 use utils::{is_answering_ping, ConnectionState};
 
-mod utils;
 mod config;
 mod log;
+mod utils;
 
 fn main() {
     let term_now = Arc::new(AtomicBool::new(false));
@@ -33,8 +39,7 @@ fn main() {
             ConnectionState::Online => {
                 if is_answering_ping(target, config.interval_normal) {
                     thread::sleep(config.interval_normal);
-                }
-                else {
+                } else {
                     let now = Utc::now();
                     logger.add_log_line(format!("{}", now));
                     logger.add_log_line(format!("Target '{}' failed to answer", target));
@@ -53,9 +58,8 @@ fn main() {
                     if is_answering_ping(target, config.interval_normal) {
                         logger.clear();
                         state = ConnectionState::Online;
-                        continue
-                    }
-                    else {
+                        continue;
+                    } else {
                         let now = Utc::now();
                         logger.add_log_line(format!("Mr. President: A second target ({}) failed to answer - The local network is under attack.", target));
                         logger.add_log_line(format!("Declaring ISP outage at {}", now));
@@ -64,7 +68,10 @@ fn main() {
                 } else {
                     let now = Utc::now();
                     logger.add_log_line(format!("Router is down"));
-                    logger.add_log_line(format!("Declaring local outage at {} - Roll the Trucks!", now));
+                    logger.add_log_line(format!(
+                        "Declaring local outage at {} - Roll the Trucks!",
+                        now
+                    ));
                     state = ConnectionState::LocalOutage;
                 }
                 logger.add_separator();
@@ -72,11 +79,18 @@ fn main() {
             ConnectionState::IspOutage => {
                 if is_answering_ping(target, config.interval_recovery) {
                     let now = Utc::now();
-                    logger.add_log_line(format!("Connection established with target '{}' at {}", target, now));
-                    let next_target = &config.targets[next_index(target_index, config.targets.len())];
+                    logger.add_log_line(format!(
+                        "Connection established with target '{}' at {}",
+                        target, now
+                    ));
+                    let next_target =
+                        &config.targets[next_index(target_index, config.targets.len())];
                     if is_answering_ping(&next_target, config.interval_recovery) {
                         let now = Utc::now();
-                        logger.end_log(format!("Connection established with second target '{}' at {}", next_target, now));
+                        logger.end_log(format!(
+                            "Connection established with second target '{}' at {}",
+                            next_target, now
+                        ));
                         state = ConnectionState::Online;
                     } else {
                         // One target reports up, the other down - Should be unreachable, but I
@@ -91,27 +105,43 @@ fn main() {
                 if is_answering_ping(&config.router_ip, config.interval_recovery) {
                     let now = Utc::now();
                     logger.add_log_line(format!("Connection with Router established at {}", now));
-                    logger.add_log_line(format!("Local Outage end declared - checking outside connection"));
+                    logger.add_log_line(format!(
+                        "Local Outage end declared - checking outside connection"
+                    ));
                     if is_answering_ping(&target, config.interval_recovery) {
                         let now = Utc::now();
-                        logger.add_log_line(format!("Outside test connection successful at {}", now));
+                        logger
+                            .add_log_line(format!("Outside test connection successful at {}", now));
                         logger.end_log(format!("Local Outage end at {}", now));
                         state = ConnectionState::Online;
                     } else {
-                        logger.add_log_line(format!("Outside test connection unsuccessful at {}", now));
-                        logger.add_log_line(format!("Retrying in {} seconds", config.interval_recovery.as_secs()));
+                        logger.add_log_line(format!(
+                            "Outside test connection unsuccessful at {}",
+                            now
+                        ));
+                        logger.add_log_line(format!(
+                            "Retrying in {} seconds",
+                            config.interval_recovery.as_secs()
+                        ));
                         thread::sleep(config.interval_recovery);
-                        if is_answering_ping(&target, config.interval_recovery) { 
+                        if is_answering_ping(&target, config.interval_recovery) {
                             let now = Utc::now();
-                            logger.end_log(format!("Outside test connection successful at {}", now));
+                            logger
+                                .end_log(format!("Outside test connection successful at {}", now));
                             state = ConnectionState::Online;
-                        } else { 
+                        } else {
                             let now = Utc::now();
-                            logger.add_log_line(format!("Outside test connection unsuccessful at {}", now));
-                            logger.add_log_line(format!("Declaring ISP outage at {}, continuing the outage", now));
+                            logger.add_log_line(format!(
+                                "Outside test connection unsuccessful at {}",
+                                now
+                            ));
+                            logger.add_log_line(format!(
+                                "Declaring ISP outage at {}, continuing the outage",
+                                now
+                            ));
                             logger.add_separator();
-                            state = ConnectionState::IspOutage; 
-                        } 
+                            state = ConnectionState::IspOutage;
+                        }
                     }
                 } else {
                     thread::sleep(config.interval_recovery);
