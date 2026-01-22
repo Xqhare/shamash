@@ -69,11 +69,11 @@ impl Logger {
         self.add_small_separator();
         let log_duration = self.log_start.elapsed();
         self.add_log_line(format!("Time from Log creation to saving: {} seconds", log_duration.as_secs_f32()));
-        self.add_small_separator();
+        self.add_large_separator();
         if let Err(e) = self.write_log() {
             panic!("OS ERROR {}", e)
         }
-        self.clear();
+        self.reset();
     }
 
     fn write_log(&self) -> Result<(), std::io::Error> {
@@ -94,8 +94,10 @@ impl Logger {
         }
     }
 
-    pub fn clear(&mut self) {
+    pub fn reset(&mut self) {
         self.logs.clear();
+        self.log_start = Instant::now();
+        self.event_type = EventType::Online;
     }
 }
 

@@ -31,7 +31,7 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
         config.iter_targets();
 
         if check_list.iter().any(|b| b == &true) {
-            logger.clear();
+            logger.reset();
             ConnectionState::Online
         } else {
             let now = Utc::now();

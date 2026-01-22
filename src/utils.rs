@@ -27,7 +27,16 @@ pub fn is_answering_ping(addr: &str, timeout_duration: Duration, logger: &mut Lo
         .status();
 
     match status {
-        Ok(status) => status.success(),
+        Ok(status) => match status.success() {
+            true => {
+                logger.add_log_line(format!("🟢 Target '{}' is answering", addr));
+                true
+            }
+            false => {
+                logger.add_log_line(format!("🔴 Target '{}' is not answering", addr));
+                false
+            }
+        },
         Err(e) => {
             logger.add_log_line(format!("{}", e));
             false

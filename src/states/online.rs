@@ -20,10 +20,10 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
             thread::sleep(config.interval_normal);
             None
         } else {
-            let now = Utc::now();
-            logger.log_start = Instant::now();
+            logger.reset();
             logger.add_large_separator();
             logger.add_log_line(format!("Start of log"));
+            let now = Utc::now();
             logger.add_log_line(format!("{}", now));
             logger.add_large_separator();
             logger.add_log_line(format!("🟡 Target '{}' and secondary target '{}' failed to answer", &config.current_target(), &config.next_target()));
