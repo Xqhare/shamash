@@ -26,9 +26,13 @@ impl Logger {
         self.logs.push(log_line);
     }
 
-    pub fn add_separator(&mut self) {
+    pub fn add_small_separator(&mut self) {
+        self.logs.push(format!("{}-", make_long_repeat("- ", 20)));
+    }
+
+    pub fn add_large_separator(&mut self) {
         self.logs.push("\n".to_string());
-        self.logs.push("---------------------".to_string());
+        self.logs.push(format!("{}=", make_long_repeat("=-", 20)));
         self.logs.push("\n".to_string());
     }
 
@@ -53,4 +57,12 @@ impl Logger {
     pub fn clear(&mut self) {
         self.logs.clear();
     }
+}
+
+fn make_long_repeat(pattern: &str, times: usize) -> String {
+    let mut result = String::new();
+    for _ in 0..times {
+        result.push_str(pattern);
+    }
+    result
 }
