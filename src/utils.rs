@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use crate::log::Logger;
+use crate::{log::Logger, states::ConnectionState};
 
 /// Ping a host
 ///
@@ -15,7 +15,7 @@ use crate::log::Logger;
 /// # Returns
 ///
 /// `true` if the ping was successful, `false` otherwise
-pub fn is_answering_ping(addr: &str, timeout_duration: Duration, logger: &mut Logger) -> bool {
+pub fn is_answering_ping(addr: &str, timeout_duration: Duration, logger: &mut Logger, state: ConnectionState) -> bool {
     let status = Command::new("ping")
         .arg("-c")
         .arg("1")
@@ -29,7 +29,9 @@ pub fn is_answering_ping(addr: &str, timeout_duration: Duration, logger: &mut Lo
     match status {
         Ok(status) => match status.success() {
             true => {
-                logger.add_log_line(format!("🟢 Target '{}' is answering", addr));
+                if state != ConnectionState::Online {
+                    logger.add_log_line(format!("🟢 Target '{}' is answering", addr));
+                }
                 true
             }
             false => {

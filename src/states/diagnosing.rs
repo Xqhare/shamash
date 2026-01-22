@@ -12,22 +12,22 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
     logger.add_log_line(format!("🟡 {} - Diagnosing", now));
     logger.add_small_separator();
 
-    if is_answering_ping(&config.router_ip, config.interval_recovery, logger) {
+    if is_answering_ping(&config.router_ip, config.interval_recovery, logger, ConnectionState::Diagnosing) {
 
         let mut check_list = vec![];
-        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger));
+        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger, ConnectionState::Diagnosing));
         config.iter_targets();
         thread::sleep(config.interval_recovery);
-        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger));
+        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger, ConnectionState::Diagnosing));
         config.iter_targets();
         thread::sleep(config.interval_recovery);
-        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger));
+        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger, ConnectionState::Diagnosing));
         config.iter_targets();
         thread::sleep(config.interval_recovery);
-        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger));
+        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger, ConnectionState::Diagnosing));
         config.iter_targets();
         thread::sleep(config.interval_recovery);
-        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger));
+        check_list.push(is_answering_ping(&config.current_target(), config.interval_recovery, logger, ConnectionState::Diagnosing));
         config.iter_targets();
 
         if check_list.iter().any(|b| b == &true) {
