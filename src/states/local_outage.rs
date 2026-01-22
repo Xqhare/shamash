@@ -2,7 +2,7 @@ use std::thread;
 
 use horae::Utc;
 
-use crate::{config::Config, log::Logger, utils::is_answering_ping};
+use crate::{config::Config, log::{EventType, Logger}, utils::is_answering_ping};
 
 use super::ConnectionState;
 
@@ -54,6 +54,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
                     now
                 ));
                 logger.add_large_separator();
+                logger.event_type = EventType::IspOutage;
                 Some(ConnectionState::IspOutage)
             }
         }

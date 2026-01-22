@@ -2,7 +2,7 @@ use std::thread;
 
 use horae::Utc;
 
-use crate::{config::Config, log::Logger, utils::is_answering_ping};
+use crate::{config::Config, log::{EventType, Logger}, utils::is_answering_ping};
 
 use super::ConnectionState;
 
@@ -38,6 +38,7 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
             logger.add_log_line("🔴 Mr. President, 5 more targets have failed to answer - we are cut off".to_string());
             logger.add_log_line(format!("🔴 Declaring ISP outage at {}", now));
             logger.add_large_separator();
+            logger.event_type = EventType::IspOutage;
             ConnectionState::IspOutage
         }
 
@@ -49,6 +50,7 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
             now
         ));
         logger.add_large_separator();
+        logger.event_type = EventType::LocalOutage;
         ConnectionState::LocalOutage
     }
 }

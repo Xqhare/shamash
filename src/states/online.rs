@@ -1,4 +1,4 @@
-use std::thread;
+use std::{thread, time::Instant};
 
 use horae::Utc;
 
@@ -21,6 +21,7 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
             None
         } else {
             let now = Utc::now();
+            logger.log_start = Instant::now();
             logger.add_large_separator();
             logger.add_log_line(format!("Start of log"));
             logger.add_log_line(format!("{}", now));
