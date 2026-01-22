@@ -29,7 +29,6 @@ pub fn is_answering_ping(addr: &str, timeout_duration: Duration, logger: &mut Lo
     match status {
         Ok(status) => status.success(),
         Err(e) => {
-            logger.add_small_separator();
             logger.add_log_line(format!("{}", e));
             false
         }
