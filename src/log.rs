@@ -6,7 +6,14 @@ use horae::Utc;
 pub struct Logger {
     logs: Vec<String>,
     log_dir_path: String,
-    log_start: Instant,
+    pub log_start: Instant,
+    pub event_type: EventType,
+}
+
+pub enum EventType {
+    IspOutage,
+    LocalOutage,
+    Online,
 }
 
 impl Logger {
@@ -14,10 +21,22 @@ impl Logger {
         if let Err(e) = std::fs::create_dir_all(&log_dir_path) {
             panic!("OS ERROR {}", e)
         }
+        let (isp_dir, local_dir) = {
+            let isp_path = PathBuf::from(&log_dir_path);
+            let local_path = PathBuf::from(&log_dir_path);
+            (isp_path.join("isp_outage"), local_path.join("local_outage"))
+        };
+        if let Err(e) = std::fs::create_dir_all(isp_dir) {
+            panic!("OS ERROR {}", e)
+        }
+        if let Err(e) = std::fs::create_dir_all(local_dir) {
+            panic!("OS ERROR {}", e)
+        }
         Self {
             logs: vec![],
             log_dir_path,
             log_start: Instant::now(),
+            event_type: EventType::Online,
         }
     }
 
@@ -59,8 +78,20 @@ impl Logger {
 
     fn write_log(&self) -> Result<(), std::io::Error> {
         let now = Utc::now();
-        let this_log_path = PathBuf::from(self.log_dir_path.clone()).join(format!("{}.log", now));
-        std::fs::write(this_log_path, self.make_log())
+        match self.event_type {
+            EventType::IspOutage => {
+                let this_log_path = PathBuf::from(self.log_dir_path.clone()).join(format!("isp_outage/{}.log", now));
+                std::fs::write(this_log_path, self.make_log())
+            }
+            EventType::LocalOutage => {
+                let this_log_path = PathBuf::from(self.log_dir_path.clone()).join(format!("local_outage/{}.log", now));
+                std::fs::write(this_log_path, self.make_log())
+            }
+            EventType::Online => {
+                let this_log_path = PathBuf::from(self.log_dir_path.clone()).join(format!("{}.log", now));
+                std::fs::write(this_log_path, self.make_log())
+            }
+        }
     }
 
     pub fn clear(&mut self) {
