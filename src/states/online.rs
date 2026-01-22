@@ -12,11 +12,11 @@ use super::ConnectionState;
 /// Returns `Some(ConnectionState::Diagnosing)` if the target is not online
 /// Returns `None` otherwise
 pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
-    if is_answering_ping(&config.current_target(), config.interval_normal) {
+    if is_answering_ping(&config.current_target(), config.interval_normal, logger) {
         thread::sleep(config.interval_normal);
         None
     } else {
-        if is_answering_ping(&config.next_target(), config.interval_normal) {
+        if is_answering_ping(&config.next_target(), config.interval_normal, logger) {
             thread::sleep(config.interval_normal);
             None
         } else {

@@ -8,14 +8,14 @@ use super::ConnectionState;
 
 
 pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
-    if is_answering_ping(&config.router_ip, config.interval_recovery) {
+    if is_answering_ping(&config.router_ip, config.interval_recovery, logger) {
         let now = Utc::now();
         logger.add_log_line(format!("🟢 Connection with Router established at {}", now));
         logger.add_log_line(format!(
             "🟢 Local Outage end declared - checking outside connection"
         ));
         logger.add_small_separator();
-        if is_answering_ping(&config.current_target(), config.interval_recovery) {
+        if is_answering_ping(&config.current_target(), config.interval_recovery, logger) {
             let now = Utc::now();
             logger
                 .add_log_line(format!("🟢 Outside test connection successful with target '{}' at {}", &config.current_target(), now));
@@ -35,7 +35,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
             ));
             logger.add_small_separator();
             thread::sleep(config.interval_recovery);
-            if is_answering_ping(&config.current_target(), config.interval_recovery) {
+            if is_answering_ping(&config.current_target(), config.interval_recovery, logger) {
                 let now = Utc::now();
                 logger
                     .end_log(format!("🟢 Outside test connection successful with target '{}' at {}",
