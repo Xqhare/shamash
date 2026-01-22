@@ -1,4 +1,4 @@
-use std::{thread, time::Instant};
+use std::thread;
 
 use horae::Utc;
 
