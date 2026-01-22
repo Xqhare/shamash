@@ -60,7 +60,7 @@ fn main() {
     }
 
     // ------ SHUT DOWN CODE --------
-    if logger.has_unsaved_log() {
+    if logger.has_unsaved_log() && state != ConnectionState::Online {
         let now = Utc::now();
         logger.end_log(format!("Shamash shutting down at {}", now));
     }
