@@ -34,10 +34,3 @@ pub fn is_answering_ping(addr: &str, timeout_duration: Duration) -> bool {
     }
 }
 
-#[derive(PartialEq, Debug)]
-pub enum ConnectionState {
-    Online,
-    Diagnosing,
-    IspOutage,
-    LocalOutage,
-}
