@@ -1,10 +1,12 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Instant};
 
 use horae::Utc;
+
 
 pub struct Logger {
     logs: Vec<String>,
     log_dir_path: String,
+    log_start: Instant,
 }
 
 impl Logger {
@@ -15,6 +17,7 @@ impl Logger {
         Self {
             logs: vec![],
             log_dir_path,
+            log_start: Instant::now(),
         }
     }
 
@@ -37,11 +40,17 @@ impl Logger {
     }
 
     fn make_log(&self) -> String {
-        self.logs.join("\n")
+        let mut out = self.logs.join("\n");
+        out.push_str("\n");
+        out
     }
 
     pub fn end_log(&mut self, last_log: String) {
         self.add_log_line(last_log);
+        self.add_small_separator();
+        let log_duration = self.log_start.elapsed();
+        self.add_log_line(format!("Time from Log creation to saving: {} seconds", log_duration.as_secs_f32()));
+        self.add_small_separator();
         if let Err(e) = self.write_log() {
             panic!("OS ERROR {}", e)
         }
