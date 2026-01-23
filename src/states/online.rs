@@ -22,9 +22,8 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
         } else {
             logger.reset();
             logger.add_large_separator();
-            logger.add_log_line(format!("Start of log"));
             let now = Utc::now();
-            logger.add_log_line(format!("{}", now));
+            logger.add_log_line(format!("Start of log: {}", now));
             logger.add_large_separator();
             logger.add_log_line(format!("🟡 Target '{}' and secondary target '{}' failed to answer", &config.current_target(), &config.next_target()));
             logger.add_large_separator();

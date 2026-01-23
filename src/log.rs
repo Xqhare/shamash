@@ -68,6 +68,7 @@ impl Logger {
         self.add_log_line(last_log);
         self.add_small_separator();
         let log_duration = self.log_start.elapsed();
+        self.add_log_line("\n".to_string());
         self.add_log_line(format!("Time from Log creation to saving: {} seconds", log_duration.as_secs_f32()));
         self.add_large_separator();
         if let Err(e) = self.write_log() {
