@@ -2,7 +2,6 @@ use std::{path::PathBuf, time::Instant};
 
 use horae::Utc;
 
-
 pub struct Logger {
     logs: Vec<String>,
     pub log_dir_path: String,
@@ -69,7 +68,10 @@ impl Logger {
         self.add_small_separator();
         let log_duration = self.log_start.elapsed();
         self.add_log_line("\n".to_string());
-        self.add_log_line(format!("Time from Log creation to saving: {} seconds", log_duration.as_secs_f32()));
+        self.add_log_line(format!(
+            "Time from Log creation to saving: {} seconds",
+            log_duration.as_secs_f32()
+        ));
         self.add_large_separator();
         if let Err(e) = self.write_log() {
             panic!("OS ERROR {}", e)
@@ -81,15 +83,18 @@ impl Logger {
         let now = Utc::now();
         match self.event_type {
             EventType::IspOutage => {
-                let this_log_path = PathBuf::from(self.log_dir_path.clone()).join(format!("isp_outage/{}.log", now));
+                let this_log_path = PathBuf::from(self.log_dir_path.clone())
+                    .join(format!("isp_outage/{}.log", now));
                 std::fs::write(this_log_path, self.make_log())
             }
             EventType::LocalOutage => {
-                let this_log_path = PathBuf::from(self.log_dir_path.clone()).join(format!("local_outage/{}.log", now));
+                let this_log_path = PathBuf::from(self.log_dir_path.clone())
+                    .join(format!("local_outage/{}.log", now));
                 std::fs::write(this_log_path, self.make_log())
             }
             EventType::Online => {
-                let this_log_path = PathBuf::from(self.log_dir_path.clone()).join(format!("{}.log", now));
+                let this_log_path =
+                    PathBuf::from(self.log_dir_path.clone()).join(format!("{}.log", now));
                 std::fs::write(this_log_path, self.make_log())
             }
         }

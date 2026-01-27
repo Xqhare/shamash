@@ -15,7 +15,12 @@ use crate::{log::Logger, states::ConnectionState};
 /// # Returns
 ///
 /// `true` if the ping was successful, `false` otherwise
-pub fn is_answering_ping(addr: &str, timeout_duration: Duration, logger: &mut Logger, state: ConnectionState) -> bool {
+pub fn is_answering_ping(
+    addr: &str,
+    timeout_duration: Duration,
+    logger: &mut Logger,
+    state: ConnectionState,
+) -> bool {
     let status = Command::new("ping")
         .arg("-c")
         .arg("1")
@@ -45,4 +50,3 @@ pub fn is_answering_ping(addr: &str, timeout_duration: Duration, logger: &mut Lo
         }
     }
 }
-

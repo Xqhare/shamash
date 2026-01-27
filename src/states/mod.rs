@@ -1,4 +1,3 @@
-
 mod local_outage;
 pub use local_outage::local_outage;
 mod isp_outage;

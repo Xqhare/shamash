@@ -7,18 +7,12 @@ use config::Config;
 use horae::Utc;
 use log::Logger;
 use signal_hook::{consts::TERM_SIGNALS, flag};
-use states::{
-    diagnosing, 
-    isp_outage, 
-    local_outage,
-    online,
-    ConnectionState
-};
+use states::{diagnosing, isp_outage, local_outage, online, ConnectionState};
 
 mod config;
 mod log;
-mod utils;
 mod states;
+mod utils;
 
 fn main() {
     let term_now = Arc::new(AtomicBool::new(false));
