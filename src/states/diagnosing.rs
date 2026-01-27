@@ -42,6 +42,8 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
             logger.add_log_line(format!("🔴 Declaring ISP outage at {}", now));
             logger.add_large_separator();
             logger.event_type = EventType::IspOutage;
+            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/diagnosing");
+            let _ = std::fs::write(logger.log_dir_path.clone() + "/isp_outage", []);
             ConnectionState::IspOutage
         }
 
@@ -55,6 +57,8 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
         ));
         logger.add_large_separator();
         logger.event_type = EventType::LocalOutage;
+        let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/diagnosing");
+        let _ = std::fs::write(logger.log_dir_path.clone() + "/local_outage", []);
         ConnectionState::LocalOutage
     }
 }
