@@ -3,17 +3,18 @@ use std::{env, time::Duration};
 use crate::next_index;
 
 const ROUTER_IP: &str = "192.168.178.1";
+/// High availability targets of completely different providers - google, cloudflare etc
 const TARGETS: [&str; 10] = [
     "1.1.1.1",
-    "1.0.0.1",
-    "8.8.4.4",
-    "8.8.8.8",
-    "9.9.9.9",
-    "94.140.14.14",
-    "94.140.15.15",
     "149.112.112.112",
-    "208.67.222.222",
+    "8.8.4.4",
+    "94.140.14.14",
+    "1.0.0.1",
     "208.67.220.220",
+    "8.8.8.8",
+    "94.140.15.15",
+    "9.9.9.9",
+    "208.67.222.222",
 ];
 
 pub struct Config {
