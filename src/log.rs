@@ -5,7 +5,7 @@ use horae::Utc;
 
 pub struct Logger {
     logs: Vec<String>,
-    log_dir_path: String,
+    pub log_dir_path: String,
     pub log_start: Instant,
     pub event_type: EventType,
 }
