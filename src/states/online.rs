@@ -27,6 +27,7 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
             logger.add_large_separator();
             logger.add_log_line(format!("🟡 Target '{}' and secondary target '{}' failed to answer", &config.current_target(), &config.next_target()));
             logger.add_large_separator();
+            let _ = std::fs::write(logger.log_dir_path.clone() + "/diagnosing", []);
             Some(ConnectionState::Diagnosing)
         }
     }
