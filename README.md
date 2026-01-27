@@ -12,6 +12,17 @@ No data leaves your machine.
 - All data stays on your machine: Shamash logs all data to a local file. That's it.
 - Detect local outages (router is down)
 - Detect remote outages (ISP is down)
+- See if there are any local or remote outages in real time
+
+### Real-time:
+
+Shamash creates a file with no contents if an outage is detected. It can be found inside the `shamash-logs` directory.
+
+- `isp_outage` - When the ISP is down.
+- `local_outage` - When the local network is down.
+- `diagnosing` - While the program is diagnosing the issue. This is only visible for a few seconds at most.
+
+This file is deleted as soon as the outage ends.
 
 ## Why use Shamash?
 
@@ -27,7 +38,8 @@ No data leaves your machine.
 Shamash should run on any UNIX system, it's only tested on Debian.
 
 1. Clone the repository.
-2. Build the project.
+2. Change the IP found in `src/config.rs` under `ROUTER_IP` to the IP of your router.
+3. Build the project.
 
 ```sh
     $ git clone https://github.com/Xqhare/shamash
@@ -35,12 +47,21 @@ Shamash should run on any UNIX system, it's only tested on Debian.
     $ cargo build -r
 ```
 
-3. Move the binary to the desired location.
-4. Add the binary to your autostart script.
-5. Restart your system or start the program manually.
+4. Move the binary to the desired location.
+5. Add the binary to your autostart script.
+6. Restart your system or start the program manually.
 
 Now Shamash is up and running, monitoring your Internet connection.
 Whenever the system boots up, it will automatically start Shamash in the background, as long as you have added it to your autostart script.
+
+### Docker
+
+You can also run Shamash in a Docker container.
+The Dockerfile for Shamash is located in the root directory of the repository.
+
+It supports the following environment variables:
+- `ROUTER_IP`: The IP address of the router.
+- `LOG_DIR_PATH`: The path to the directory where the logs will be saved.
 
 ## Usage:
 
