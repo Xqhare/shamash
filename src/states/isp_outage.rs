@@ -31,7 +31,7 @@ pub fn isp_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionStat
                 &config.next_target(),
                 now
             ));
-            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/isp_outage");
+            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/isp_outage_ongoing");
             Some(ConnectionState::Online)
         } else {
             logger.add_log_line(format!(

@@ -39,7 +39,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
             logger.add_large_separator();
             logger.end_log(format!("🟢 Local Outage end at {}", now));
             logger.add_large_separator();
-            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage");
+            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage_ongoing");
             Some(ConnectionState::Online)
         } else {
             logger.add_log_line(format!(
@@ -65,7 +65,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
                     &config.current_target(),
                     now
                 ));
-                let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage");
+                let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage_ongoing");
                 Some(ConnectionState::Online)
             } else {
                 let now = Utc::now();
@@ -79,8 +79,8 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
                 ));
                 logger.add_large_separator();
                 logger.event_type = EventType::IspOutage;
-                let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage");
-                let _ = std::fs::write(logger.log_dir_path.clone() + "/isp_outage", []);
+                let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage_ongoing");
+                let _ = std::fs::write(logger.log_dir_path.clone() + "/isp_outage_ongoing", []);
                 Some(ConnectionState::IspOutage)
             }
         }
