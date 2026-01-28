@@ -67,6 +67,7 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
 
         if check_list.iter().any(|b| b == &true) {
             logger.reset();
+            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/diagnosing");
             ConnectionState::Online
         } else {
             let now = Utc::now();
