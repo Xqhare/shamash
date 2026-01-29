@@ -45,8 +45,19 @@ fn end_complete_network_outage(config: &Config, logger: &mut Logger) -> Option<C
             move_to_isp_outage(logger)
         }
     } else {
-        move_to_isp_outage(logger)
+        move_to_local_outage(logger)
     }
+}
+
+fn move_to_local_outage(logger: &mut Logger) -> Option<ConnectionState> {
+    let now = Utc::now();
+
+    logger.add_small_separator();
+    logger.add_log_line(format!("🔴 Declaring local outage at {}", now));
+    logger.add_large_separator();
+    logger.event_type = EventType::LocalOutage;
+
+    Some(ConnectionState::LocalOutage)
 }
 
 fn move_to_isp_outage(logger: &mut Logger) -> Option<ConnectionState> {
