@@ -1,4 +1,4 @@
-use std::thread;
+use std::{thread, time::Duration};
 
 use horae::Utc;
 
@@ -24,39 +24,64 @@ pub fn isp_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionStat
         ConnectionState::IspOutage,
     ) {
         let now = Utc::now();
+        
         logger.add_log_line(format!(
             "🟢 Connection established with target '{}' at {}",
             &config.current_target(),
             now
         ));
-        if is_answering_ping(
-            &config.next_target(),
-            config.interval_recovery,
-            logger,
-            ConnectionState::IspOutage,
-        ) {
-            let now = Utc::now();
-            logger.end_log(format!(
-                "🟢 Connection established with second target '{}' at {}",
-                &config.next_target(),
-                now
-            ));
-            delete_isp_outage_file(&logger.log_dir_path);
-            Some(ConnectionState::Online)
-        } else {
-            logger.add_log_line(format!(
-                "🟡 Connection not established with second target '{}' at {}",
-                &config.next_target(),
-                now
-            ));
-            logger.add_log_line("🔴 Continuing ISP outage".to_string());
-            logger.add_small_separator();
-            // One target reports up, the other down - Should be unreachable, but I
-            // guess we'll just run the loop again.
-            None
-        }
+
+        secondary_connection_test(config, logger)
     } else {
-        thread::sleep(config.interval_recovery);
-        None
+        isp_outage_sleep(config.interval_recovery)
     }
+}
+
+fn secondary_connection_test(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+    if is_answering_ping(
+        &config.next_target(),
+        config.interval_recovery,
+        logger,
+        ConnectionState::IspOutage,
+    ) {
+        secondary_test_successful(config, logger)
+    } else {
+        secondary_test_unsuccessful(config, logger)
+    }
+}
+
+fn secondary_test_successful(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+    let now = Utc::now();
+
+    logger.end_log(format!(
+        "🟢 Connection established with second target '{}' at {}",
+        &config.next_target(),
+        now
+    ));
+
+    delete_isp_outage_file(&logger.log_dir_path);
+
+    Some(ConnectionState::Online)
+}
+
+
+fn secondary_test_unsuccessful(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+    let now = Utc::now();
+
+    logger.add_log_line(format!(
+        "🟡 Connection not established with second target '{}' at {}",
+        &config.next_target(),
+        now
+    ));
+    logger.add_log_line("🔴 Continuing ISP outage".to_string());
+    logger.add_small_separator();
+
+    // One target reports up, the other down - Should be unreachable, but I
+    // guess we'll just run the loop again.
+    None
+}
+
+fn isp_outage_sleep(dur: Duration) -> Option<ConnectionState> {
+    thread::sleep(dur);
+    None
 }

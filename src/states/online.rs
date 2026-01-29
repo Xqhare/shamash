@@ -1,4 +1,4 @@
-use std::thread;
+use std::{thread, time::Duration};
 
 use horae::Utc;
 
@@ -17,31 +17,41 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
         logger,
         ConnectionState::Online,
     ) {
-        thread::sleep(config.interval_normal);
-        None
+        online_sleep(config.interval_normal)
     } else {
+        // The next IP is guaranteed to be a different provider than the current
         if is_answering_ping(
             &config.next_target(),
             config.interval_normal,
             logger,
             ConnectionState::Online,
         ) {
-            thread::sleep(config.interval_normal);
-            None
+            online_sleep(config.interval_normal)
         } else {
-            logger.reset();
-            logger.add_large_separator();
-            let now = Utc::now();
-            logger.add_log_line(format!("Start of log: {}", now));
-            logger.add_large_separator();
-            logger.add_log_line(format!(
-                "🟡 Target '{}' and secondary target '{}' failed to answer",
-                &config.current_target(),
-                &config.next_target()
-            ));
-            logger.add_large_separator();
-            write_diagnosing_file(&logger.log_dir_path);
-            Some(ConnectionState::Diagnosing)
+            move_to_diagnosing(config, logger)
         }
     }
+}
+
+fn move_to_diagnosing(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+    let now = Utc::now();
+    logger.reset();
+    
+    logger.add_large_separator();
+    logger.add_log_line(format!("Start of log: {}", now));
+    logger.add_large_separator();
+    logger.add_log_line(format!(
+        "🟡 Target '{}' and secondary target '{}' failed to answer",
+        &config.current_target(),
+        &config.next_target()
+    ));
+    logger.add_large_separator();
+    
+    write_diagnosing_file(&logger.log_dir_path);
+    Some(ConnectionState::Diagnosing)
+}
+
+fn online_sleep(dur: Duration) -> Option<ConnectionState> {
+    thread::sleep(dur);
+    None
 }
