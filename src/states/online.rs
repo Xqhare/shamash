@@ -4,7 +4,7 @@ use horae::Utc;
 
 use crate::{config::Config, log::Logger, utils::is_answering_ping};
 
-use super::ConnectionState;
+use super::{diagnosing::write_diagnosing_file, ConnectionState};
 
 /// Checks if the target is online
 ///
@@ -40,7 +40,7 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
                 &config.next_target()
             ));
             logger.add_large_separator();
-            let _ = std::fs::write(logger.log_dir_path.clone() + "/diagnosing", []);
+            write_diagnosing_file(&logger.log_dir_path);
             Some(ConnectionState::Diagnosing)
         }
     }

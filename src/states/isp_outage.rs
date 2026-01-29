@@ -6,6 +6,16 @@ use crate::{config::Config, log::Logger, utils::is_answering_ping};
 
 use super::ConnectionState;
 
+const ISP_OUTAGE_FILE: &str = "/isp_outage_ongoing";
+
+pub fn write_isp_outage_file(path: &str) {
+    let _ = std::fs::write(path.to_owned() + ISP_OUTAGE_FILE, []);
+}
+
+pub fn delete_isp_outage_file(path: &str) {
+    let _ = std::fs::remove_file(path.to_owned() + ISP_OUTAGE_FILE);
+}
+
 pub fn isp_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
     if is_answering_ping(
         &config.current_target(),
@@ -31,7 +41,7 @@ pub fn isp_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionStat
                 &config.next_target(),
                 now
             ));
-            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/isp_outage_ongoing");
+            delete_isp_outage_file(&logger.log_dir_path);
             Some(ConnectionState::Online)
         } else {
             logger.add_log_line(format!(

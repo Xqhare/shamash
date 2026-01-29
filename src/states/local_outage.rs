@@ -8,7 +8,15 @@ use crate::{
     utils::is_answering_ping,
 };
 
-use super::ConnectionState;
+use super::{isp_outage::write_isp_outage_file, ConnectionState};
+
+pub fn write_local_outage_file(path: &str) {
+    let _ = std::fs::write(path.to_owned() + "/local_outage_ongoing", []);
+}
+
+pub fn delete_local_outage_file(path: &str) {
+    let _ = std::fs::remove_file(path.to_owned() + "/local_outage_ongoing");
+}
 
 pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
     if is_answering_ping(
@@ -39,7 +47,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
             logger.add_large_separator();
             logger.end_log(format!("🟢 Local Outage end at {}", now));
             logger.add_large_separator();
-            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage_ongoing");
+            delete_local_outage_file(&logger.log_dir_path);
             Some(ConnectionState::Online)
         } else {
             logger.add_log_line(format!(
@@ -65,7 +73,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
                     &config.current_target(),
                     now
                 ));
-                let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage_ongoing");
+                delete_local_outage_file(&logger.log_dir_path);
                 Some(ConnectionState::Online)
             } else {
                 let now = Utc::now();
@@ -79,8 +87,8 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
                 ));
                 logger.add_large_separator();
                 logger.event_type = EventType::IspOutage;
-                let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/local_outage_ongoing");
-                let _ = std::fs::write(logger.log_dir_path.clone() + "/isp_outage_ongoing", []);
+                delete_local_outage_file(&logger.log_dir_path);
+                write_isp_outage_file(&logger.log_dir_path);
                 Some(ConnectionState::IspOutage)
             }
         }

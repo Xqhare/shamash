@@ -8,7 +8,17 @@ use crate::{
     utils::is_answering_ping,
 };
 
-use super::ConnectionState;
+use super::{isp_outage::write_isp_outage_file, local_outage::write_local_outage_file, ConnectionState};
+
+const DIAGNOSING_FILE: &str = "/diagnosing";
+
+pub fn write_diagnosing_file(path: &str) {
+    let _ = std::fs::write(path.to_owned() + DIAGNOSING_FILE, []);
+}
+
+pub fn delete_diagnosing_file(path: &str) {
+    let _ = std::fs::remove_file(path.to_owned() + DIAGNOSING_FILE);
+}
 
 pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
@@ -67,7 +77,7 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
 
         if check_list.iter().any(|b| b == &true) {
             logger.reset();
-            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/diagnosing");
+            delete_diagnosing_file(&logger.log_dir_path);
             ConnectionState::Online
         } else {
             let now = Utc::now();
@@ -79,8 +89,8 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
             logger.add_log_line(format!("🔴 Declaring ISP outage at {}", now));
             logger.add_large_separator();
             logger.event_type = EventType::IspOutage;
-            let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/diagnosing");
-            let _ = std::fs::write(logger.log_dir_path.clone() + "/isp_outage_ongoing", []);
+            delete_diagnosing_file(&logger.log_dir_path);
+            write_isp_outage_file(&logger.log_dir_path);
             ConnectionState::IspOutage
         }
     } else {
@@ -93,8 +103,8 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
         ));
         logger.add_large_separator();
         logger.event_type = EventType::LocalOutage;
-        let _ = std::fs::remove_file(logger.log_dir_path.clone() + "/diagnosing");
-        let _ = std::fs::write(logger.log_dir_path.clone() + "/local_outage_ongoing", []);
+        delete_diagnosing_file(&logger.log_dir_path);
+        write_local_outage_file(&logger.log_dir_path);
         ConnectionState::LocalOutage
     }
 }
