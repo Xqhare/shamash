@@ -7,7 +7,7 @@ use config::Config;
 use horae::Utc;
 use log::Logger;
 use signal_hook::{consts::TERM_SIGNALS, flag};
-use states::{diagnosing, isp_outage, local_outage, online, ConnectionState};
+use states::{diagnosing, isp_outage, local_outage, online, complete_network_outage, ConnectionState};
 
 mod config;
 mod log;
@@ -47,6 +47,11 @@ fn main() {
             }
             ConnectionState::LocalOutage => {
                 if let Some(new_state) = local_outage(&config, &mut logger) {
+                    state = new_state;
+                }
+            }
+            ConnectionState::CompleteNetworkOutage => {
+                if let Some(new_state) = complete_network_outage(&config, &mut logger) {
                     state = new_state;
                 }
             }

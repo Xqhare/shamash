@@ -6,6 +6,8 @@ mod online;
 pub use online::online;
 mod diagnosing;
 pub use diagnosing::diagnosing;
+mod complete_network_outage;
+pub use complete_network_outage::complete_network_outage;
 
 #[derive(PartialEq, Debug)]
 pub enum ConnectionState {
@@ -13,4 +15,5 @@ pub enum ConnectionState {
     Diagnosing,
     IspOutage,
     LocalOutage,
+    CompleteNetworkOutage,
 }

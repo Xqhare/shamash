@@ -8,7 +8,7 @@ use crate::{
     utils::is_answering_ping,
 };
 
-use super::{isp_outage::write_isp_outage_file, local_outage::write_local_outage_file, ConnectionState};
+use super::{isp_outage::write_isp_outage_file, local_outage::write_local_outage_file, complete_network_outage::write_complete_network_outage_file, ConnectionState};
 
 const DIAGNOSING_FILE: &str = "/diagnosing";
 
@@ -35,7 +35,7 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
     ) {
         diagnose_isp(config, logger)
     } else {
-        move_to_local_outage(logger)
+        diagnose_local_outage(config, logger)
     }
 }
 
@@ -81,7 +81,6 @@ fn move_to_online(logger: &mut Logger) -> ConnectionState {
 fn move_to_isp_outage(logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
-
     logger.add_log_line(format!("🔴 Declaring ISP outage at {}", now));
     logger.add_large_separator();
     logger.event_type = EventType::IspOutage;
@@ -92,11 +91,81 @@ fn move_to_isp_outage(logger: &mut Logger) -> ConnectionState {
     ConnectionState::IspOutage
 }
 
+fn diagnose_local_outage(config: &mut Config, logger: &mut Logger) -> ConnectionState {
+    logger.add_small_separator();
+    logger.add_log_line(format!("🔴 Router is down"));
+    logger.add_small_separator();
+
+    if let Some(target) = config.secondary_internal_target.clone() {
+        check_secondary_target(config, logger, &target)
+    } else {
+        move_to_local_outage(logger)
+    }
+}
+
+fn check_secondary_target(config: &mut Config, logger: &mut Logger, target: &str) -> ConnectionState {
+    if is_answering_ping(
+        target,
+        config.interval_recovery,
+        logger,
+        ConnectionState::Diagnosing,
+    ) {
+        secondary_check_successful(config, logger)
+
+    } else {
+        secondary_check_unsuccessful(config, logger)
+    }
+}
+
+fn secondary_check_successful(config: &mut Config, logger: &mut Logger) -> ConnectionState {
+    let now = Utc::now();
+
+    logger.add_log_line(format!(
+        "🟢 Connection established with secondary internal target '{}' at {}",
+        &config.next_target(),
+        now
+    ));
+    logger.add_log_line("🟡 Local network up - ISP Router down".to_string());
+    logger.add_small_separator();
+
+    move_to_local_outage(logger)
+}
+
+fn secondary_check_unsuccessful(config: &mut Config, logger: &mut Logger) -> ConnectionState {
+    let now = Utc::now();
+
+    logger.add_log_line(format!(
+        "🔴 Connection not established with secondary internal target '{}' at {}",
+        &config.next_target(),
+        now
+    ));
+    logger.add_log_line("🔴 Declaring total network outage".to_string());
+    logger.add_small_separator();
+
+    move_to_complete_network_outage(logger)
+}
+
+fn move_to_complete_network_outage(logger: &mut Logger) -> ConnectionState {
+    let now = Utc::now();
+
+    logger.add_small_separator();
+    logger.add_log_line(format!(
+        "🔴 Declaring router outage at {} - Roll the Trucks!",
+        now
+    ));
+    logger.add_large_separator();
+    logger.event_type = EventType::CompleteNetworkOutage;
+
+    delete_diagnosing_file(&logger.log_dir_path);
+    write_complete_network_outage_file(&logger.log_dir_path);
+    
+    ConnectionState::CompleteNetworkOutage
+}
+
 fn move_to_local_outage(logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_small_separator();
-    logger.add_log_line(format!("🔴 Router is down"));
     logger.add_log_line(format!(
         "🔴 Declaring local outage at {} - Roll the Trucks!",
         now
