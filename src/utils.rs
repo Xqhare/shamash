@@ -11,6 +11,8 @@ use crate::{log::Logger, states::ConnectionState};
 ///
 /// * `addr` - The address to ping
 /// * `timeout_duration` - The duration to wait for a response
+/// * `logger` - The logger instance to use
+/// * `state` - The current state of the connection
 ///
 /// # Returns
 ///
