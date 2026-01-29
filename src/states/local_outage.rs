@@ -28,11 +28,12 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
         let now = Utc::now();
         
         logger.add_log_line(format!("🟢 Connection with Router established at {}", now));
+        logger.add_small_separator();
         logger.add_log_line(format!(
             "🟢 Local Outage end declared, duration: {} seconds - checking outside connection",
             logger.log_start.elapsed().as_secs_f64()
         ));
-        logger.add_small_separator();
+        logger.add_large_separator();
 
         test_outside_connection(config, logger)
     } else {

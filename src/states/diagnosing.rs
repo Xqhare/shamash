@@ -104,6 +104,11 @@ fn diagnose_local_outage(config: &mut Config, logger: &mut Logger) -> Connection
 }
 
 fn check_secondary_target(config: &mut Config, logger: &mut Logger, target: &str) -> ConnectionState {
+    let now = Utc::now();
+
+    logger.add_log_line(format!("Checking secondary internal target '{}' at {}", target, now));
+    logger.add_small_separator();
+
     if is_answering_ping(
         target,
         config.interval_recovery,
@@ -125,10 +130,23 @@ fn secondary_check_successful(config: &mut Config, logger: &mut Logger) -> Conne
         &config.next_target(),
         now
     ));
-    logger.add_log_line("🟡 Local network up - ISP Router down".to_string());
+    logger.add_small_separator();
+    logger.add_log_line(format!("Retrying connection with Router at {} in {} seconds", &config.router_ip, config.interval_recovery.as_secs_f64()));
     logger.add_small_separator();
 
-    move_to_local_outage(logger)
+    thread::sleep(config.interval_recovery);
+
+    if is_answering_ping(
+        &config.router_ip,
+        config.interval_recovery,
+        logger,
+        ConnectionState::Diagnosing,
+    ) {
+        move_to_online(logger)
+    } else {
+        logger.add_log_line("🟢 🔴 Local network up - ISP Router down".to_string());
+        move_to_local_outage(logger)
+    }
 }
 
 fn secondary_check_unsuccessful(config: &mut Config, logger: &mut Logger) -> ConnectionState {
