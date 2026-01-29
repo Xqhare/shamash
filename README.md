@@ -33,6 +33,11 @@ This file is deleted as soon as the outage ends.
 - Start and end time & date of a connection drop.
 - Type of connection drop (local or remote).
 
+## Roadmap
+
+- [ ] Removal of all `panics`, `unwraps` or `expects`
+    - Instead log the errors in an error file (`base_dir/error.log`)
+
 ## Installation:
 
 Shamash should run on any UNIX system, it's only tested on Debian.
