@@ -11,6 +11,7 @@ No data leaves your machine.
     - Only write privileges to the current directory required.
 - All data stays on your machine: Shamash logs all data to a local file. That's it.
 - Detect local outages (router is down)
+- Detect total network outages if a secondary internal target is set and down (Use Docker for this - or modify the source code)
 - Detect remote outages (ISP is down)
 - See if there are any local or remote outages in real time
 
@@ -18,8 +19,9 @@ No data leaves your machine.
 
 Shamash creates a file with no contents if an outage is detected. It can be found inside the `shamash-logs` directory.
 
-- `isp_outage` - When the ISP is down.
-- `local_outage` - When the local network is down.
+- `isp_outage_ongoing` - When the ISP is down.
+- `local_outage_ongoing` - When the router is down.
+- `complete_network_outage_ongoing` - When both the router and secondary internal target are down.
 - `diagnosing` - While the program is diagnosing the issue. This is only visible for a few seconds at most.
 
 This file is deleted as soon as the outage ends.
@@ -67,6 +69,7 @@ The Dockerfile for Shamash is located in the root directory of the repository.
 It supports the following environment variables:
 - `ROUTER_IP`: The IP address of the router.
 - `LOG_DIR_PATH`: The path to the directory where the logs will be saved.
+- `SECONDARY_INTERNAL_TARGET`: The IP address of the secondary internal target. - If not set, the program will not check for total outages.
 
 ## Usage:
 
