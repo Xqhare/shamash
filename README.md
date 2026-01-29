@@ -39,6 +39,11 @@ This file is deleted as soon as the outage ends.
 
 - [ ] Removal of all `panics`, `unwraps` or `expects`
     - Instead log the errors in an error file (`base_dir/error.log`)
+- [ ] Fix several major limitations
+    - [ ] Logs of ongoing incidents are not saved and kept in heap allocated memory. Not only not performant, but also should the system crash, nothing would be saved
+    - [ ] Log files are not rotated
+    - [ ] Add a json file for configuration without docker or touching the source code
+    - [ ] Logger helper function for entries with a date & time (unifies formatting)
 
 ## Installation:
 
@@ -86,6 +91,8 @@ It then saves the log and starts pinging every second again.
 
 It rotates through DNS targets and pings them in a round-robin manner.
 Namely: `1.1.1.1`, `1.0.0.1`, `8.8.4.4`, `8.8.8.8`, `9.9.9.9`, `94.140.14.14`, `94.140.15.15`, `149.112.112.112`, `208.67.222.222`, `208.67.220.220`
+
+Shamash is set up in a way to ensure that the program checks several completely separated external DNS Server providers before deciding that the connection is down.
 
 ## Naming:
 
