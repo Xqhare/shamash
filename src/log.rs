@@ -18,9 +18,6 @@ pub enum EventType {
 
 impl Logger {
     pub fn new(log_dir_path: String) -> Self {
-        if let Err(e) = std::fs::create_dir_all(&log_dir_path) {
-            panic!("OS ERROR {}", e)
-        }
         let (isp_dir, local_dir, router_dir) = {
             let isp_path = PathBuf::from(&log_dir_path);
             let local_path = PathBuf::from(&log_dir_path);
