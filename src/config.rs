@@ -19,6 +19,7 @@ const TARGETS: [&str; 10] = [
 
 pub struct Config {
     pub router_ip: String,
+    pub secondary_internal_target: Option<String>,
     pub targets: Vec<String>,
     index: usize,
     pub interval_normal: Duration,
@@ -31,8 +32,10 @@ impl Config {
         let router_ip = env::var("ROUTER_IP").unwrap_or_else(|_| ROUTER_IP.to_string());
         let log_dir_path =
             env::var("LOG_DIR_PATH").unwrap_or_else(|_| "./shamash-logs/".to_string());
+        let secondary_internal_target = env::var("SECONDARY_INTERNAL_TARGET").ok();
         Self {
             router_ip,
+            secondary_internal_target,
             targets: TARGETS.iter().map(|s| s.to_string()).collect(),
             index: 0,
             interval_normal: Duration::from_secs(1),
