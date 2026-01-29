@@ -1,21 +1,10 @@
-use std::{env, time::Duration};
+use std::{env, path::PathBuf, time::Duration};
 
-use crate::next_index;
+use mawu::read::json;
 
-const ROUTER_IP: &str = "192.168.178.1";
-/// High availability targets of completely different providers - google, cloudflare etc
-const TARGETS: [&str; 10] = [
-    "1.1.1.1",
-    "149.112.112.112",
-    "8.8.4.4",
-    "94.140.14.14",
-    "1.0.0.1",
-    "208.67.220.220",
-    "8.8.8.8",
-    "94.140.15.15",
-    "9.9.9.9",
-    "208.67.222.222",
-];
+use crate::{next_index, utils::generate_and_write_config_file};
+
+pub const CONFIG_FILE_PATH: &str = "./config.json";
 
 pub struct Config {
     pub router_ip: String,
@@ -29,14 +18,29 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Self {
-        let router_ip = env::var("ROUTER_IP").unwrap_or_else(|_| ROUTER_IP.to_string());
+        let config_file_path = PathBuf::from(CONFIG_FILE_PATH);
+        if !config_file_path.exists() {
+            generate_and_write_config_file();
+        }
+        let config_file = json(config_file_path).expect("Failed to read config file");
+        let config = config_file.to_object().expect("Failed to parse config file");
+        let router_ip = env::var("ROUTER_IP").unwrap_or_else(|_| config.get("router_ip").expect("No Key: ROUTER_IP in config").to_string());
         let log_dir_path =
-            env::var("LOG_DIR_PATH").unwrap_or_else(|_| "./shamash-logs/".to_string());
-        let secondary_internal_target = env::var("SECONDARY_INTERNAL_TARGET").ok();
+            env::var("LOG_DIR_PATH").unwrap_or_else(|_| config.get("log_dir_path").expect("No Key: LOG_DIR_PATH in config").to_string());
+        let targets = config.get("targets").expect("No Key: targets in config").to_array();
+        let secondary_internal_target: Option<String> = {
+            if let Ok(s) = env::var("SECONDARY_INTERNAL_TARGET") {
+                Some(s)
+            } else if let Some(s) = config.get("secondary_internal_target") {
+                Some(s.to_string())
+            } else {
+                None
+            }
+        };
         Self {
             router_ip,
             secondary_internal_target,
-            targets: TARGETS.iter().map(|s| s.to_string()).collect(),
+            targets: targets.iter().map(|s| s.to_string()).collect(),
             index: 0,
             interval_normal: Duration::from_secs(1),
             interval_recovery: Duration::from_millis(333),
