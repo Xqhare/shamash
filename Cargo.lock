@@ -24,10 +24,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bcc35a38544a891a5f7c865aca548a982ccb3b8650a5b06d0fd33a10283c56fc"
 
 [[package]]
+name = "mawu"
+version = "0.6.2"
+source = "git+https://github.com/Xqhare/mawu#8b949b6aacbdecd08e22185ef94b87dcc5c15666"
+
+[[package]]
 name = "shamash"
 version = "1.3.0"
 dependencies = [
  "horae",
+ "mawu",
  "signal-hook",
 ]
 

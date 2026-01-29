@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 signal-hook = "0.4.1"
 horae = { git = "https://github.com/Xqhare/horae" }
+mawu = { git = "https://github.com/Xqhare/mawu" }
 
 [profile.release]
 lto = true
