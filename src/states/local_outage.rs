@@ -94,7 +94,7 @@ fn test_outside_connection_unsuccessful(config: &Config, logger: &mut Logger) ->
     ) {
         move_to_online(config, logger)
     } else {
-        move_to_isp_outage(config, logger)
+        move_to_isp_outage(logger)
     }
 }
 
@@ -116,7 +116,7 @@ fn local_outage_sleep(dur: Duration) -> Option<ConnectionState> {
     None
 }
 
-fn move_to_isp_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+fn move_to_isp_outage(logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
 
     logger.add_log_line(format!(
