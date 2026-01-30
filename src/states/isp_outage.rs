@@ -19,7 +19,7 @@ pub fn isp_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionStat
         &config.current_target(),
         config.interval_recovery,
         logger,
-        ConnectionState::IspOutage,
+        &ConnectionState::IspOutage,
     ) {
         let now = Utc::now();
 
@@ -41,7 +41,7 @@ fn secondary_connection_test(config: &Config, logger: &mut Logger) -> Option<Con
         &config.next_target(),
         config.interval_recovery,
         logger,
-        ConnectionState::IspOutage,
+        &ConnectionState::IspOutage,
     ) {
         secondary_test_successful(config, logger)
     } else {

@@ -15,7 +15,7 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
         &config.current_target(),
         config.interval_normal,
         logger,
-        ConnectionState::Online,
+        &ConnectionState::Online,
     ) {
         online_sleep(config.interval_normal)
     } else {
@@ -24,7 +24,7 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
             &config.next_target(),
             config.interval_normal,
             logger,
-            ConnectionState::Online,
+            &ConnectionState::Online,
         ) {
             online_sleep(config.interval_normal)
         } else {

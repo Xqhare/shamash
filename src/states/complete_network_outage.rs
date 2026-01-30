@@ -18,7 +18,7 @@ pub fn complete_network_outage(config: &Config, logger: &mut Logger) -> Option<C
             .expect("Complete network outage only reachable with secondary internal target set"),
         config.interval_recovery,
         logger,
-        ConnectionState::CompleteNetworkOutage,
+        &ConnectionState::CompleteNetworkOutage,
     ) {
         end_complete_network_outage(config, logger)
     } else {
@@ -40,13 +40,13 @@ fn end_complete_network_outage(config: &Config, logger: &mut Logger) -> Option<C
         &config.router_ip,
         config.interval_recovery,
         logger,
-        ConnectionState::CompleteNetworkOutage,
+        &ConnectionState::CompleteNetworkOutage,
     ) {
         if is_answering_ping(
             &config.current_target(),
             config.interval_recovery,
             logger,
-            ConnectionState::CompleteNetworkOutage,
+            &ConnectionState::CompleteNetworkOutage,
         ) {
             move_to_online(logger)
         } else {

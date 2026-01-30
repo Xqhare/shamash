@@ -23,7 +23,7 @@ pub fn is_answering_ping(
     addr: &str,
     timeout_duration: Duration,
     logger: &mut Logger,
-    state: ConnectionState,
+    state: &ConnectionState,
 ) -> bool {
     let status = Command::new("ping")
         .arg("-c")
@@ -37,7 +37,7 @@ pub fn is_answering_ping(
 
     match status {
         Ok(status) => if status.success() {
-            if state != ConnectionState::Online {
+            if state != &ConnectionState::Online {
                 logger.add_log_line(format!("🟢 Target '{addr}' is answering"));
             }
             true

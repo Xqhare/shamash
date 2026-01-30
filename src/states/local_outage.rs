@@ -21,7 +21,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
         &config.router_ip,
         config.interval_recovery,
         logger,
-        ConnectionState::LocalOutage,
+        &ConnectionState::LocalOutage,
     ) {
         let now = Utc::now();
 
@@ -45,7 +45,7 @@ fn test_outside_connection(config: &Config, logger: &mut Logger) -> Option<Conne
         &config.current_target(),
         config.interval_recovery,
         logger,
-        ConnectionState::LocalOutage,
+        &ConnectionState::LocalOutage,
     ) {
         test_outside_connection_successful(config, logger)
     } else {
@@ -90,7 +90,7 @@ fn test_outside_connection_unsuccessful(
         &config.current_target(),
         config.interval_recovery,
         logger,
-        ConnectionState::LocalOutage,
+        &ConnectionState::LocalOutage,
     ) {
         move_to_online(config, logger)
     } else {

@@ -32,7 +32,7 @@ pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
         &config.router_ip,
         config.interval_recovery,
         logger,
-        ConnectionState::Diagnosing,
+        &ConnectionState::Diagnosing,
     ) {
         diagnose_isp(config, logger)
     } else {
@@ -51,7 +51,7 @@ fn diagnose_isp(config: &mut Config, logger: &mut Logger) -> ConnectionState {
             &config.current_target(),
             config.interval_recovery,
             logger,
-            ConnectionState::Diagnosing,
+            &ConnectionState::Diagnosing,
         ) {
             // If just one outside target answers, we're good
             return move_to_online(logger);
@@ -116,7 +116,7 @@ fn check_secondary_target(
         target,
         config.interval_recovery,
         logger,
-        ConnectionState::Diagnosing,
+        &ConnectionState::Diagnosing,
     ) {
         secondary_check_successful(config, logger)
     } else {
@@ -144,7 +144,7 @@ fn secondary_check_successful(config: &mut Config, logger: &mut Logger) -> Conne
         &config.router_ip,
         config.interval_recovery,
         logger,
-        ConnectionState::Diagnosing,
+        &ConnectionState::Diagnosing,
     ) {
         move_to_online(logger)
     } else {
