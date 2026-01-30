@@ -12,3 +12,7 @@ mawu = { git = "https://github.com/Xqhare/mawu" }
 
 [profile.release]
 lto = true
+
+[lints.clippy]
+# Enable pedantic lints - use this manually once in a while, but don't enable by default
+pedantic = { level = "warn", priority = -1 }
