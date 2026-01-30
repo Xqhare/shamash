@@ -6,7 +6,7 @@ use crate::{
     utils::is_answering_ping,
 };
 
-use super::{isp_outage::write_isp_outage_file, sleep_outage, ConnectionState};
+use super::{isp_outage::write_isp_outage_file, local_outage::write_local_outage_file, sleep_outage, ConnectionState};
 
 const COMPLETE_NETWORK_OUTAGE_FILE: &str = "/complete_network_outage_ongoing";
 
@@ -20,14 +20,14 @@ pub fn complete_network_outage(config: &Config, logger: &mut Logger) -> Option<C
         logger,
         &ConnectionState::CompleteNetworkOutage,
     ) {
-        end_complete_network_outage(config, logger)
+        Some(end_complete_network_outage(config, logger))
     } else {
         // Ping timeout - 50ms to prevent tight looping
         sleep_outage()
     }
 }
 
-fn end_complete_network_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+fn end_complete_network_outage(config: &Config, logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_log_line(format!(
@@ -57,7 +57,7 @@ fn end_complete_network_outage(config: &Config, logger: &mut Logger) -> Option<C
     }
 }
 
-fn move_to_local_outage(logger: &mut Logger) -> Option<ConnectionState> {
+fn move_to_local_outage(logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_small_separator();
@@ -65,10 +65,13 @@ fn move_to_local_outage(logger: &mut Logger) -> Option<ConnectionState> {
     logger.add_large_separator();
     logger.event_type = EventType::LocalOutage;
 
-    Some(ConnectionState::LocalOutage)
+    delete_complete_network_outage_file(&logger.log_dir_path);
+    write_local_outage_file(&logger.log_dir_path);
+
+    ConnectionState::LocalOutage
 }
 
-fn move_to_isp_outage(logger: &mut Logger) -> Option<ConnectionState> {
+fn move_to_isp_outage(logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_small_separator();
@@ -79,10 +82,10 @@ fn move_to_isp_outage(logger: &mut Logger) -> Option<ConnectionState> {
     delete_complete_network_outage_file(&logger.log_dir_path);
     write_isp_outage_file(&logger.log_dir_path);
 
-    Some(ConnectionState::IspOutage)
+    ConnectionState::IspOutage
 }
 
-fn move_to_online(logger: &mut Logger) -> Option<ConnectionState> {
+fn move_to_online(logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_small_separator();
@@ -92,7 +95,7 @@ fn move_to_online(logger: &mut Logger) -> Option<ConnectionState> {
 
     delete_complete_network_outage_file(&logger.log_dir_path);
 
-    Some(ConnectionState::Online)
+    ConnectionState::Online
 }
 
 pub fn write_complete_network_outage_file(path: &str) {

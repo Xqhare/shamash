@@ -43,13 +43,13 @@ fn secondary_connection_test(config: &Config, logger: &mut Logger) -> Option<Con
         logger,
         &ConnectionState::IspOutage,
     ) {
-        secondary_test_successful(config, logger)
+        Some(secondary_test_successful(config, logger))
     } else {
         secondary_test_unsuccessful(config, logger)
     }
 }
 
-fn secondary_test_successful(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+fn secondary_test_successful(config: &Config, logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.end_log(format!(
@@ -60,7 +60,7 @@ fn secondary_test_successful(config: &Config, logger: &mut Logger) -> Option<Con
 
     delete_isp_outage_file(&logger.log_dir_path);
 
-    Some(ConnectionState::Online)
+    ConnectionState::Online
 }
 
 fn secondary_test_unsuccessful(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {

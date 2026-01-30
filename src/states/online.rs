@@ -28,12 +28,12 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
         ) {
             online_sleep(config.interval_normal)
         } else {
-            move_to_diagnosing(config, logger)
+            Some(move_to_diagnosing(config, logger))
         }
     }
 }
 
-fn move_to_diagnosing(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+fn move_to_diagnosing(config: &Config, logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
     logger.reset();
 
@@ -48,7 +48,7 @@ fn move_to_diagnosing(config: &Config, logger: &mut Logger) -> Option<Connection
     logger.add_large_separator();
 
     write_diagnosing_file(&logger.log_dir_path);
-    Some(ConnectionState::Diagnosing)
+    ConnectionState::Diagnosing
 }
 
 fn online_sleep(dur: Duration) -> Option<ConnectionState> {

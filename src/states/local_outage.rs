@@ -33,14 +33,14 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
         ));
         logger.add_large_separator();
 
-        test_outside_connection(config, logger)
+        Some(test_outside_connection(config, logger))
     } else {
         // Ping timeout - 50ms to prevent tight looping
         sleep_outage()
     }
 }
 
-fn test_outside_connection(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+fn test_outside_connection(config: &Config, logger: &mut Logger) -> ConnectionState {
     if is_answering_ping(
         &config.current_target(),
         config.interval_recovery,
@@ -56,7 +56,7 @@ fn test_outside_connection(config: &Config, logger: &mut Logger) -> Option<Conne
 fn test_outside_connection_successful(
     config: &Config,
     logger: &mut Logger,
-) -> Option<ConnectionState> {
+) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_log_line(format!(
@@ -70,13 +70,13 @@ fn test_outside_connection_successful(
 
     delete_local_outage_file(&logger.log_dir_path);
 
-    Some(ConnectionState::Online)
+    ConnectionState::Online
 }
 
 fn test_outside_connection_unsuccessful(
     config: &Config,
     logger: &mut Logger,
-) -> Option<ConnectionState> {
+) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_log_line(format!(
@@ -98,7 +98,7 @@ fn test_outside_connection_unsuccessful(
     }
 }
 
-fn move_to_online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+fn move_to_online(config: &Config, logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.end_log(format!(
@@ -108,10 +108,10 @@ fn move_to_online(config: &Config, logger: &mut Logger) -> Option<ConnectionStat
     ));
 
     delete_local_outage_file(&logger.log_dir_path);
-    Some(ConnectionState::Online)
+    ConnectionState::Online
 }
 
-fn move_to_isp_outage(logger: &mut Logger) -> Option<ConnectionState> {
+fn move_to_isp_outage(logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_log_line(format!(
@@ -126,5 +126,5 @@ fn move_to_isp_outage(logger: &mut Logger) -> Option<ConnectionState> {
     delete_local_outage_file(&logger.log_dir_path);
     write_isp_outage_file(&logger.log_dir_path);
 
-    Some(ConnectionState::IspOutage)
+    ConnectionState::IspOutage
 }
