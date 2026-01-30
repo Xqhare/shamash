@@ -65,7 +65,7 @@ impl Logger {
 
     fn make_log(&self) -> String {
         let mut out = self.logs.join("\n");
-        out.push_str("\n");
+        out.push('\n');
         out
     }
 

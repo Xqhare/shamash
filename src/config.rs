@@ -31,10 +31,8 @@ impl Config {
         let secondary_internal_target: Option<String> = {
             if let Ok(s) = env::var("SECONDARY_INTERNAL_TARGET") {
                 Some(s)
-            } else if let Some(s) = config.get("secondary_internal_target") {
-                Some(s.to_string())
             } else {
-                None
+                config.get("secondary_internal_target").map(|s| s.to_string())
             }
         };
         Self {

@@ -90,7 +90,7 @@ fn move_to_isp_outage(logger: &mut Logger) -> ConnectionState {
 
 fn diagnose_local_outage(config: &mut Config, logger: &mut Logger) -> ConnectionState {
     logger.add_small_separator();
-    logger.add_log_line(format!("🔴 Router is down"));
+    logger.add_log_line("🔴 Router is down".to_string());
     logger.add_small_separator();
 
     if let Some(target) = config.secondary_internal_target.clone() {
