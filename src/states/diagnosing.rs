@@ -24,7 +24,7 @@ pub fn delete_diagnosing_file(path: &str) {
 pub fn diagnosing(config: &mut Config, logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
-    logger.add_log_line(format!("🟡 Diagnosing - {}", now));
+    logger.add_log_line(format!("🟡 Diagnosing - {now}"));
     logger.add_small_separator();
     logger.add_log_line(format!("Checking router at {}", &config.router_ip));
 
@@ -61,8 +61,7 @@ fn diagnose_isp(config: &mut Config, logger: &mut Logger) -> ConnectionState {
 
     logger.add_small_separator();
     logger.add_log_line(format!(
-        "🔴 Mr. President, {} more targets have failed to answer",
-        target_amount
+        "🔴 Mr. President, {target_amount} more targets have failed to answer"
     ));
 
     move_to_isp_outage(logger)
@@ -79,7 +78,7 @@ fn move_to_online(logger: &mut Logger) -> ConnectionState {
 fn move_to_isp_outage(logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
-    logger.add_log_line(format!("🔴 Declaring ISP outage at {}", now));
+    logger.add_log_line(format!("🔴 Declaring ISP outage at {now}"));
     logger.add_large_separator();
     logger.event_type = EventType::IspOutage;
 
@@ -109,8 +108,7 @@ fn check_secondary_target(
     let now = Utc::now();
 
     logger.add_log_line(format!(
-        "Checking secondary internal target '{}' at {}",
-        target, now
+        "Checking secondary internal target '{target}' at {now}"
     ));
     logger.add_small_separator();
 
@@ -174,8 +172,7 @@ fn move_to_complete_network_outage(logger: &mut Logger) -> ConnectionState {
 
     logger.add_small_separator();
     logger.add_log_line(format!(
-        "🔴 Declaring router outage at {} - Roll the Trucks!",
-        now
+        "🔴 Declaring router outage at {now} - Roll the Trucks!"
     ));
     logger.add_large_separator();
     logger.event_type = EventType::CompleteNetworkOutage;
@@ -191,8 +188,7 @@ fn move_to_local_outage(logger: &mut Logger) -> ConnectionState {
 
     logger.add_small_separator();
     logger.add_log_line(format!(
-        "🔴 Declaring local outage at {} - Roll the Trucks!",
-        now
+        "🔴 Declaring local outage at {now} - Roll the Trucks!"
     ));
     logger.add_large_separator();
     logger.event_type = EventType::LocalOutage;

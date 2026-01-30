@@ -25,7 +25,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
     ) {
         let now = Utc::now();
 
-        logger.add_log_line(format!("🟢 Connection with Router established at {}", now));
+        logger.add_log_line(format!("🟢 Connection with Router established at {now}"));
         logger.add_small_separator();
         logger.add_log_line(format!(
             "🟢 Local Outage end declared, duration: {} seconds - checking outside connection",
@@ -65,7 +65,7 @@ fn test_outside_connection_successful(
         now
     ));
     logger.add_large_separator();
-    logger.end_log(format!("🟢 Local Outage end at {}", now));
+    logger.end_log(format!("🟢 Local Outage end at {now}"));
     logger.add_large_separator();
 
     delete_local_outage_file(&logger.log_dir_path);
@@ -115,12 +115,10 @@ fn move_to_isp_outage(logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
 
     logger.add_log_line(format!(
-        "🔴 Outside test connection unsuccessful at {}",
-        now
+        "🔴 Outside test connection unsuccessful at {now}"
     ));
     logger.add_log_line(format!(
-        "🔴 Declaring ISP outage at {}, continuing the outage",
-        now
+        "🔴 Declaring ISP outage at {now}, continuing the outage"
     ));
     logger.add_large_separator();
     logger.event_type = EventType::IspOutage;

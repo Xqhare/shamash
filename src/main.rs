@@ -22,7 +22,7 @@ fn main() {
         // significant error if signal cannot be registered
         // It compromises the shutdown and with that partial writes to disk
         if let Err(e) = flag::register(*signal, Arc::clone(&term_now)) {
-            panic!("Unable to register signal handler - Error: {}", e);
+            panic!("Unable to register signal handler - Error: {e}");
         }
     }
 
@@ -63,7 +63,7 @@ fn main() {
     // ------ SHUT DOWN CODE --------
     if logger.has_unsaved_log() && state != ConnectionState::Online {
         let now = Utc::now();
-        logger.end_log(format!("Shamash shutting down at {}", now));
+        logger.end_log(format!("Shamash shutting down at {now}"));
     }
 }
 

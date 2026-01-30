@@ -31,8 +31,7 @@ fn end_complete_network_outage(config: &Config, logger: &mut Logger) -> Option<C
     let now = Utc::now();
 
     logger.add_log_line(format!(
-        "🟢 Connection with secondary internal target established at {}",
-        now
+        "🟢 Connection with secondary internal target established at {now}"
     ));
     logger.add_small_separator();
     logger.add_log_line(format!("Checking router at {}", &config.router_ip));
@@ -62,7 +61,7 @@ fn move_to_local_outage(logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
 
     logger.add_small_separator();
-    logger.add_log_line(format!("🔴 Declaring local outage at {}", now));
+    logger.add_log_line(format!("🔴 Declaring local outage at {now}"));
     logger.add_large_separator();
     logger.event_type = EventType::LocalOutage;
 
@@ -73,7 +72,7 @@ fn move_to_isp_outage(logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
 
     logger.add_small_separator();
-    logger.add_log_line(format!("🔴 Declaring ISP outage at {}", now));
+    logger.add_log_line(format!("🔴 Declaring ISP outage at {now}"));
     logger.add_large_separator();
     logger.event_type = EventType::IspOutage;
 
@@ -87,7 +86,7 @@ fn move_to_online(logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
 
     logger.add_small_separator();
-    logger.add_log_line(format!("🟢 Declaring router online at {}", now));
+    logger.add_log_line(format!("🟢 Declaring router online at {now}"));
     logger.add_large_separator();
     logger.event_type = EventType::Online;
 

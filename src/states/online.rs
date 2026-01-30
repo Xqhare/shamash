@@ -38,7 +38,7 @@ fn move_to_diagnosing(config: &Config, logger: &mut Logger) -> Option<Connection
     logger.reset();
 
     logger.add_large_separator();
-    logger.add_log_line(format!("Start of log: {}", now));
+    logger.add_log_line(format!("Start of log: {now}"));
     logger.add_large_separator();
     logger.add_log_line(format!(
         "🟡 Target '{}' and secondary target '{}' failed to answer",

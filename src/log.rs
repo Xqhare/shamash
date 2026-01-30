@@ -29,13 +29,13 @@ impl Logger {
             )
         };
         if let Err(e) = std::fs::create_dir_all(isp_dir) {
-            panic!("OS ERROR {}", e)
+            panic!("OS ERROR {e}")
         }
         if let Err(e) = std::fs::create_dir_all(local_dir) {
-            panic!("OS ERROR {}", e)
+            panic!("OS ERROR {e}")
         }
         if let Err(e) = std::fs::create_dir_all(router_dir) {
-            panic!("OS ERROR {}", e)
+            panic!("OS ERROR {e}")
         }
         Self {
             logs: vec![],
@@ -80,7 +80,7 @@ impl Logger {
         ));
         self.add_large_separator();
         if let Err(e) = self.write_log() {
-            panic!("OS ERROR {}", e)
+            panic!("OS ERROR {e}")
         }
         self.reset();
     }
@@ -90,22 +90,22 @@ impl Logger {
         match self.event_type {
             EventType::IspOutage => {
                 let this_log_path = PathBuf::from(self.log_dir_path.clone())
-                    .join(format!("isp_outage/{}.log", now));
+                    .join(format!("isp_outage/{now}.log"));
                 std::fs::write(this_log_path, self.make_log())
             }
             EventType::LocalOutage => {
                 let this_log_path = PathBuf::from(self.log_dir_path.clone())
-                    .join(format!("local_outage/{}.log", now));
+                    .join(format!("local_outage/{now}.log"));
                 std::fs::write(this_log_path, self.make_log())
             }
             EventType::CompleteNetworkOutage => {
                 let this_log_path = PathBuf::from(self.log_dir_path.clone())
-                    .join(format!("complete_network_outage/{}.log", now));
+                    .join(format!("complete_network_outage/{now}.log"));
                 std::fs::write(this_log_path, self.make_log())
             }
             EventType::Online => {
                 let this_log_path =
-                    PathBuf::from(self.log_dir_path.clone()).join(format!("{}.log", now));
+                    PathBuf::from(self.log_dir_path.clone()).join(format!("{now}.log"));
                 std::fs::write(this_log_path, self.make_log())
             }
         }
