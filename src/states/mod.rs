@@ -1,4 +1,6 @@
 mod local_outage;
+use std::{thread, time::Duration};
+
 pub use local_outage::local_outage;
 mod isp_outage;
 pub use isp_outage::isp_outage;
@@ -16,4 +18,9 @@ pub enum ConnectionState {
     IspOutage,
     LocalOutage,
     CompleteNetworkOutage,
+}
+
+pub fn sleep_outage() -> Option<ConnectionState> {
+    thread::sleep(Duration::from_millis(50));
+    None
 }

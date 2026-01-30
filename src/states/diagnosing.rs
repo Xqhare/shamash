@@ -1,5 +1,3 @@
-use std::thread;
-
 use horae::Utc;
 
 use crate::{
@@ -8,7 +6,7 @@ use crate::{
     utils::is_answering_ping,
 };
 
-use super::{isp_outage::write_isp_outage_file, local_outage::write_local_outage_file, complete_network_outage::write_complete_network_outage_file, ConnectionState};
+use super::{complete_network_outage::write_complete_network_outage_file, isp_outage::write_isp_outage_file, local_outage::write_local_outage_file, ConnectionState};
 
 const DIAGNOSING_FILE: &str = "/diagnosing";
 
@@ -56,7 +54,6 @@ fn diagnose_isp(config: &mut Config, logger: &mut Logger) -> ConnectionState {
             return move_to_online(logger);
         }
         config.iter_targets();
-        thread::sleep(config.interval_recovery);
     }
 
     logger.add_small_separator();
@@ -133,8 +130,6 @@ fn secondary_check_successful(config: &mut Config, logger: &mut Logger) -> Conne
     logger.add_small_separator();
     logger.add_log_line(format!("Retrying connection with Router at {} in {} seconds", &config.router_ip, config.interval_recovery.as_secs_f64()));
     logger.add_small_separator();
-
-    thread::sleep(config.interval_recovery);
 
     if is_answering_ping(
         &config.router_ip,

@@ -1,10 +1,8 @@
-use std::{thread, time::Duration};
-
 use horae::Utc;
 
 use crate::{config::Config, log::Logger, utils::is_answering_ping};
 
-use super::ConnectionState;
+use super::{sleep_outage, ConnectionState};
 
 const ISP_OUTAGE_FILE: &str = "/isp_outage_ongoing";
 
@@ -33,7 +31,8 @@ pub fn isp_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionStat
 
         secondary_connection_test(config, logger)
     } else {
-        isp_outage_sleep(config.interval_recovery)
+        // Ping timeout - 50ms to prevent tight looping
+        sleep_outage()
     }
 }
 
@@ -81,7 +80,3 @@ fn secondary_test_unsuccessful(config: &Config, logger: &mut Logger) -> Option<C
     None
 }
 
-fn isp_outage_sleep(dur: Duration) -> Option<ConnectionState> {
-    thread::sleep(dur);
-    None
-}

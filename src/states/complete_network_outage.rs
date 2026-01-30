@@ -1,10 +1,8 @@
-use std::{thread, time::Duration};
-
 use horae::Utc;
 
 use crate::{config::Config, log::{EventType, Logger}, utils::is_answering_ping};
 
-use super::{isp_outage::write_isp_outage_file, ConnectionState};
+use super::{isp_outage::write_isp_outage_file, sleep_outage, ConnectionState};
 
 const COMPLETE_NETWORK_OUTAGE_FILE: &str = "/complete_network_outage_ongoing";
 
@@ -17,7 +15,8 @@ pub fn complete_network_outage(config: &Config, logger: &mut Logger) -> Option<C
     ) {
         end_complete_network_outage(config, logger)
     } else {
-        sleep_complete_network_outage(config.interval_recovery)
+        // Ping timeout - 50ms to prevent tight looping
+        sleep_outage()
     }
 }
 
@@ -85,11 +84,6 @@ fn move_to_online(logger: &mut Logger) -> Option<ConnectionState> {
     delete_complete_network_outage_file(&logger.log_dir_path);
 
     Some(ConnectionState::Online)
-}
-
-fn sleep_complete_network_outage(dur: Duration) -> Option<ConnectionState> {
-    thread::sleep(dur);
-    None
 }
 
 pub fn write_complete_network_outage_file(path: &str) {
