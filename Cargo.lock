@@ -30,7 +30,7 @@ source = "git+https://github.com/Xqhare/mawu#8b949b6aacbdecd08e22185ef94b87dcc5c
 
 [[package]]
 name = "shamash"
-version = "1.4.0"
+version = "1.4.1"
 dependencies = [
  "horae",
  "mawu",

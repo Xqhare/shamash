@@ -1,6 +1,6 @@
 [package]
 name = "shamash"
-version = "1.4.0"
+version = "1.4.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,4 +15,4 @@ lto = true
 
 [lints.clippy]
 # Enable pedantic lints - use this manually once in a while, but don't enable by default
-pedantic = { level = "warn", priority = -1 }
+# pedantic = { level = "warn", priority = -1 }
