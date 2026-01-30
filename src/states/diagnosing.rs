@@ -6,7 +6,10 @@ use crate::{
     utils::is_answering_ping,
 };
 
-use super::{complete_network_outage::write_complete_network_outage_file, isp_outage::write_isp_outage_file, local_outage::write_local_outage_file, ConnectionState};
+use super::{
+    complete_network_outage::write_complete_network_outage_file, isp_outage::write_isp_outage_file,
+    local_outage::write_local_outage_file, ConnectionState,
+};
 
 const DIAGNOSING_FILE: &str = "/diagnosing";
 
@@ -57,12 +60,10 @@ fn diagnose_isp(config: &mut Config, logger: &mut Logger) -> ConnectionState {
     }
 
     logger.add_small_separator();
-    logger.add_log_line(
-        format!(
-            "🔴 Mr. President, {} more targets have failed to answer",
-            target_amount
-        )
-    );
+    logger.add_log_line(format!(
+        "🔴 Mr. President, {} more targets have failed to answer",
+        target_amount
+    ));
 
     move_to_isp_outage(logger)
 }
@@ -71,7 +72,7 @@ fn move_to_online(logger: &mut Logger) -> ConnectionState {
     logger.reset();
 
     delete_diagnosing_file(&logger.log_dir_path);
-    
+
     ConnectionState::Online
 }
 
@@ -81,10 +82,10 @@ fn move_to_isp_outage(logger: &mut Logger) -> ConnectionState {
     logger.add_log_line(format!("🔴 Declaring ISP outage at {}", now));
     logger.add_large_separator();
     logger.event_type = EventType::IspOutage;
-    
+
     delete_diagnosing_file(&logger.log_dir_path);
     write_isp_outage_file(&logger.log_dir_path);
-    
+
     ConnectionState::IspOutage
 }
 
@@ -100,10 +101,17 @@ fn diagnose_local_outage(config: &mut Config, logger: &mut Logger) -> Connection
     }
 }
 
-fn check_secondary_target(config: &mut Config, logger: &mut Logger, target: &str) -> ConnectionState {
+fn check_secondary_target(
+    config: &mut Config,
+    logger: &mut Logger,
+    target: &str,
+) -> ConnectionState {
     let now = Utc::now();
 
-    logger.add_log_line(format!("Checking secondary internal target '{}' at {}", target, now));
+    logger.add_log_line(format!(
+        "Checking secondary internal target '{}' at {}",
+        target, now
+    ));
     logger.add_small_separator();
 
     if is_answering_ping(
@@ -113,7 +121,6 @@ fn check_secondary_target(config: &mut Config, logger: &mut Logger, target: &str
         ConnectionState::Diagnosing,
     ) {
         secondary_check_successful(config, logger)
-
     } else {
         secondary_check_unsuccessful(config, logger)
     }
@@ -128,7 +135,11 @@ fn secondary_check_successful(config: &mut Config, logger: &mut Logger) -> Conne
         now
     ));
     logger.add_small_separator();
-    logger.add_log_line(format!("Retrying connection with Router at {} in {} seconds", &config.router_ip, config.interval_recovery.as_secs_f64()));
+    logger.add_log_line(format!(
+        "Retrying connection with Router at {} in {} seconds",
+        &config.router_ip,
+        config.interval_recovery.as_secs_f64()
+    ));
     logger.add_small_separator();
 
     if is_answering_ping(
@@ -171,7 +182,7 @@ fn move_to_complete_network_outage(logger: &mut Logger) -> ConnectionState {
 
     delete_diagnosing_file(&logger.log_dir_path);
     write_complete_network_outage_file(&logger.log_dir_path);
-    
+
     ConnectionState::CompleteNetworkOutage
 }
 
@@ -188,6 +199,6 @@ fn move_to_local_outage(logger: &mut Logger) -> ConnectionState {
 
     delete_diagnosing_file(&logger.log_dir_path);
     write_local_outage_file(&logger.log_dir_path);
-    
+
     ConnectionState::LocalOutage
 }

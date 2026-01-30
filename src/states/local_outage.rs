@@ -24,7 +24,7 @@ pub fn local_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionSt
         ConnectionState::LocalOutage,
     ) {
         let now = Utc::now();
-        
+
         logger.add_log_line(format!("🟢 Connection with Router established at {}", now));
         logger.add_small_separator();
         logger.add_log_line(format!(
@@ -53,7 +53,10 @@ fn test_outside_connection(config: &Config, logger: &mut Logger) -> Option<Conne
     }
 }
 
-fn test_outside_connection_successful(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+fn test_outside_connection_successful(
+    config: &Config,
+    logger: &mut Logger,
+) -> Option<ConnectionState> {
     let now = Utc::now();
 
     logger.add_log_line(format!(
@@ -64,22 +67,25 @@ fn test_outside_connection_successful(config: &Config, logger: &mut Logger) -> O
     logger.add_large_separator();
     logger.end_log(format!("🟢 Local Outage end at {}", now));
     logger.add_large_separator();
-    
+
     delete_local_outage_file(&logger.log_dir_path);
-    
+
     Some(ConnectionState::Online)
 }
 
-fn test_outside_connection_unsuccessful(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
+fn test_outside_connection_unsuccessful(
+    config: &Config,
+    logger: &mut Logger,
+) -> Option<ConnectionState> {
     let now = Utc::now();
-    
+
     logger.add_log_line(format!(
         "🟡 Outside test connection unsuccessful with target '{}' at {}",
         &config.current_target(),
         now
     ));
     logger.add_small_separator();
-    
+
     if is_answering_ping(
         &config.current_target(),
         config.interval_recovery,
@@ -94,7 +100,7 @@ fn test_outside_connection_unsuccessful(config: &Config, logger: &mut Logger) ->
 
 fn move_to_online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
-    
+
     logger.end_log(format!(
         "🟢 Outside test connection successful with target '{}' at {}",
         &config.current_target(),

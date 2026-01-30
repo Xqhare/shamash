@@ -36,7 +36,7 @@ pub fn online(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
 fn move_to_diagnosing(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
     logger.reset();
-    
+
     logger.add_large_separator();
     logger.add_log_line(format!("Start of log: {}", now));
     logger.add_large_separator();
@@ -46,7 +46,7 @@ fn move_to_diagnosing(config: &Config, logger: &mut Logger) -> Option<Connection
         &config.next_target()
     ));
     logger.add_large_separator();
-    
+
     write_diagnosing_file(&logger.log_dir_path);
     Some(ConnectionState::Diagnosing)
 }

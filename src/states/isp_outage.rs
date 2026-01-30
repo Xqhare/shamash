@@ -22,7 +22,7 @@ pub fn isp_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionStat
         ConnectionState::IspOutage,
     ) {
         let now = Utc::now();
-        
+
         logger.add_log_line(format!(
             "🟢 Connection established with target '{}' at {}",
             &config.current_target(),
@@ -63,7 +63,6 @@ fn secondary_test_successful(config: &Config, logger: &mut Logger) -> Option<Con
     Some(ConnectionState::Online)
 }
 
-
 fn secondary_test_unsuccessful(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
 
@@ -79,4 +78,3 @@ fn secondary_test_unsuccessful(config: &Config, logger: &mut Logger) -> Option<C
     // guess we'll just run the loop again.
     None
 }
-

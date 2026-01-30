@@ -1,6 +1,10 @@
 use horae::Utc;
 
-use crate::{config::Config, log::{EventType, Logger}, utils::is_answering_ping};
+use crate::{
+    config::Config,
+    log::{EventType, Logger},
+    utils::is_answering_ping,
+};
 
 use super::{isp_outage::write_isp_outage_file, sleep_outage, ConnectionState};
 
@@ -8,7 +12,10 @@ const COMPLETE_NETWORK_OUTAGE_FILE: &str = "/complete_network_outage_ongoing";
 
 pub fn complete_network_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
     if is_answering_ping(
-        &config.secondary_internal_target.clone().expect("Complete network outage only reachable with secondary internal target set"),
+        &config
+            .secondary_internal_target
+            .clone()
+            .expect("Complete network outage only reachable with secondary internal target set"),
         config.interval_recovery,
         logger,
         ConnectionState::CompleteNetworkOutage,
@@ -23,7 +30,10 @@ pub fn complete_network_outage(config: &Config, logger: &mut Logger) -> Option<C
 fn end_complete_network_outage(config: &Config, logger: &mut Logger) -> Option<ConnectionState> {
     let now = Utc::now();
 
-    logger.add_log_line(format!("🟢 Connection with secondary internal target established at {}", now));
+    logger.add_log_line(format!(
+        "🟢 Connection with secondary internal target established at {}",
+        now
+    ));
     logger.add_small_separator();
     logger.add_log_line(format!("Checking router at {}", &config.router_ip));
 

@@ -7,7 +7,9 @@ use config::Config;
 use horae::Utc;
 use log::Logger;
 use signal_hook::{consts::TERM_SIGNALS, flag};
-use states::{diagnosing, isp_outage, local_outage, online, complete_network_outage, ConnectionState};
+use states::{
+    complete_network_outage, diagnosing, isp_outage, local_outage, online, ConnectionState,
+};
 
 mod config;
 mod log;
