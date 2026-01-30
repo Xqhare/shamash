@@ -78,10 +78,6 @@ fn test_outside_connection_unsuccessful(config: &Config, logger: &mut Logger) ->
         &config.current_target(),
         now
     ));
-    logger.add_log_line(format!(
-        "Retrying in {} seconds",
-        config.interval_recovery.as_secs_f64()
-    ));
     logger.add_small_separator();
     
     if is_answering_ping(
