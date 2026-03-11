@@ -1,14 +1,14 @@
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     Arc,
+    atomic::{AtomicBool, Ordering},
 };
 
 use config::Config;
 use horae::Utc;
 use log::Logger;
-use signal_hook::{consts::TERM_SIGNALS, flag};
+use hades::{flag, term_signals::TERM_SIGNALS};
 use states::{
-    complete_network_outage, diagnosing, isp_outage, local_outage, online, ConnectionState,
+    ConnectionState, complete_network_outage, diagnosing, isp_outage, local_outage, online,
 };
 
 mod config;
