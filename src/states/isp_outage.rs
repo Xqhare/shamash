@@ -2,7 +2,7 @@ use horae::Utc;
 
 use crate::{config::Config, log::Logger, utils::is_answering_ping};
 
-use super::{sleep_outage, ConnectionState};
+use super::{ConnectionState, sleep_outage};
 
 const ISP_OUTAGE_FILE: &str = "/isp_outage_ongoing";
 

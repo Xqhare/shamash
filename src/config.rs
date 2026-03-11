@@ -54,7 +54,10 @@ impl Config {
         Self {
             router_ip,
             secondary_internal_target,
-            targets: targets.iter().map(mawu::mawu_value::MawuValue::to_string).collect(),
+            targets: targets
+                .iter()
+                .map(mawu::mawu_value::MawuValue::to_string)
+                .collect(),
             index: 0,
             interval_normal: Duration::from_secs(1),
             interval_recovery: Duration::from_millis(333),

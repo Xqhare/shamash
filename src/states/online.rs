@@ -4,7 +4,7 @@ use horae::Utc;
 
 use crate::{config::Config, log::Logger, utils::is_answering_ping};
 
-use super::{diagnosing::write_diagnosing_file, ConnectionState};
+use super::{ConnectionState, diagnosing::write_diagnosing_file};
 
 /// Checks if the target is online
 ///

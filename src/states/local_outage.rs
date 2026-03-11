@@ -6,7 +6,7 @@ use crate::{
     utils::is_answering_ping,
 };
 
-use super::{isp_outage::write_isp_outage_file, sleep_outage, ConnectionState};
+use super::{ConnectionState, isp_outage::write_isp_outage_file, sleep_outage};
 
 pub fn write_local_outage_file(path: &str) {
     let _ = std::fs::write(path.to_owned() + "/local_outage_ongoing", []);
@@ -53,10 +53,7 @@ fn test_outside_connection(config: &Config, logger: &mut Logger) -> ConnectionSt
     }
 }
 
-fn test_outside_connection_successful(
-    config: &Config,
-    logger: &mut Logger,
-) -> ConnectionState {
+fn test_outside_connection_successful(config: &Config, logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_log_line(format!(
@@ -73,10 +70,7 @@ fn test_outside_connection_successful(
     ConnectionState::Online
 }
 
-fn test_outside_connection_unsuccessful(
-    config: &Config,
-    logger: &mut Logger,
-) -> ConnectionState {
+fn test_outside_connection_unsuccessful(config: &Config, logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
     logger.add_log_line(format!(
@@ -114,9 +108,7 @@ fn move_to_online(config: &Config, logger: &mut Logger) -> ConnectionState {
 fn move_to_isp_outage(logger: &mut Logger) -> ConnectionState {
     let now = Utc::now();
 
-    logger.add_log_line(format!(
-        "🔴 Outside test connection unsuccessful at {now}"
-    ));
+    logger.add_log_line(format!("🔴 Outside test connection unsuccessful at {now}"));
     logger.add_log_line(format!(
         "🔴 Declaring ISP outage at {now}, continuing the outage"
     ));

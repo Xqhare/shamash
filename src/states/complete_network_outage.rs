@@ -6,7 +6,10 @@ use crate::{
     utils::is_answering_ping,
 };
 
-use super::{isp_outage::write_isp_outage_file, local_outage::write_local_outage_file, sleep_outage, ConnectionState};
+use super::{
+    ConnectionState, isp_outage::write_isp_outage_file, local_outage::write_local_outage_file,
+    sleep_outage,
+};
 
 const COMPLETE_NETWORK_OUTAGE_FILE: &str = "/complete_network_outage_ongoing";
 

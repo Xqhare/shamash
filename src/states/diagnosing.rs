@@ -7,8 +7,8 @@ use crate::{
 };
 
 use super::{
-    complete_network_outage::write_complete_network_outage_file, isp_outage::write_isp_outage_file,
-    local_outage::write_local_outage_file, ConnectionState,
+    ConnectionState, complete_network_outage::write_complete_network_outage_file,
+    isp_outage::write_isp_outage_file, local_outage::write_local_outage_file,
 };
 
 const DIAGNOSING_FILE: &str = "/diagnosing";

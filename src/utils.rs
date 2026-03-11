@@ -36,15 +36,17 @@ pub fn is_answering_ping(
         .status();
 
     match status {
-        Ok(status) => if status.success() {
-            if state != &ConnectionState::Online {
-                logger.add_log_line(format!("🟢 Target '{addr}' is answering"));
+        Ok(status) => {
+            if status.success() {
+                if state != &ConnectionState::Online {
+                    logger.add_log_line(format!("🟢 Target '{addr}' is answering"));
+                }
+                true
+            } else {
+                logger.add_log_line(format!("🔴 Target '{addr}' is not answering"));
+                false
             }
-            true
-        } else {
-            logger.add_log_line(format!("🔴 Target '{addr}' is not answering"));
-            false
-        },
+        }
         Err(e) => {
             logger.add_log_line(format!("{e}"));
             false

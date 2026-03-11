@@ -89,8 +89,8 @@ impl Logger {
         let now = Utc::now();
         match self.event_type {
             EventType::IspOutage => {
-                let this_log_path = PathBuf::from(self.log_dir_path.clone())
-                    .join(format!("isp_outage/{now}.log"));
+                let this_log_path =
+                    PathBuf::from(self.log_dir_path.clone()).join(format!("isp_outage/{now}.log"));
                 std::fs::write(this_log_path, self.make_log())
             }
             EventType::LocalOutage => {
