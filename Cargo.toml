@@ -12,7 +12,11 @@ horae = { git = "https://github.com/Xqhare/horae" }
 mawu = { git = "https://github.com/Xqhare/mawu" }
 
 [profile.release]
-lto = true
+codegen-units = 1
+lto = "fat"
+opt-level = "s"
+panic = "abort"
+strip = "symbols"
 
 [lints.clippy]
 # Enable pedantic lints - use this manually once in a while, but don't enable by default
