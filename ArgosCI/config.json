@@ -1,0 +1,6 @@
+{
+  "requires": ["horae", "hades", "nabu"],
+  "build": {
+    "args": ["-r"]
+  }
+}
