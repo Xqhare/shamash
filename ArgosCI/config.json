@@ -1,4 +1,5 @@
 {
+  "all": true,
   "requires": ["horae", "hades", "nabu"],
   "build": {
     "args": ["-r"]
