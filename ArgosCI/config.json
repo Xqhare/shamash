@@ -1,6 +1,6 @@
 {
   "all": true,
-  "requires": ["horae", "hades", "nabu"],
+  "requires": ["horae", "hades", "mawu"],
   "build": {
     "args": ["-r"]
   }
