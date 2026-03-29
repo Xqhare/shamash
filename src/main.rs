@@ -4,9 +4,9 @@ use std::sync::{
 };
 
 use config::Config;
+use hades::{flag, term_signals::TERM_SIGNALS};
 use horae::Utc;
 use log::Logger;
-use hades::{flag, term_signals::TERM_SIGNALS};
 use states::{
     ConnectionState, complete_network_outage, diagnosing, isp_outage, local_outage, online,
 };
